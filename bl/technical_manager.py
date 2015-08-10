@@ -52,12 +52,12 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,ba
     return_data.update(calculate_beta_std(df_symbol_close,df_mkt_close,symbol))
     return_data.update( calculate_res_sup(df_symbol))
     print return_data
-    exit()
-    filepath=base_path+"/"+symbol+'.csv'   
+
+       
     df_temp=df_symbol_close.pct_change()
-#    print df_temp.std()
+
     mom=abstract.MOM(df_symbol_close, timeperiod=5)
-    #stddev=abstract.STDDEV(df_temp)
+
     rsi=abstract.RSI(df_symbol_close).round(2)    
     sma20 = abstract.SMA(df_symbol_close, timeperiod=20).round(2)
     sma50 = abstract.SMA(df_symbol_close, timeperiod=50).round(2)
@@ -72,31 +72,13 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,ba
     df_merged['sma50']=sma50
     df_merged['sma100']=sma100
     df_merged['sma200']=sma200
-    df_merged['rsi']=rsi
-    #df_merged['stddev']=stddev
+    df_merged['rsi']=rsi    
     df_merged['close']=df_symbol_close
     df_merged=df_merged.dropna()
     df_merged['symbol']=symbol
-    #df_merged['volatility']=df_merged.apply(calc_Volatility, axis=1 )
     df_merged['rsi_value'] = df_merged['rsi'].apply(calculate_rsi_values )
-    df_plot=df_merged[['stddev']]
-    df_plot.plot()
-    plt.show()
+    print df_merged.tail(0)
     
-    """
-    
-    df_merged['rsi_value_shifted']=df_merged['rsi_value'].shift(1)
-    df_merged['rsi_value_change']=df_merged['rsi_value']-df_merged['rsi_value_shifted']
-    df_change_history=df_merged[df_merged['rsi_value_change']!=0][['rsi','rsi_value','rsi_value_shifted']]
-    df_merged['sma200_price_diff']=df_merged['close']-df_merged['sma200']
-    df_merged['sma200_price_diff_shifted']=df_merged['sma200_price_diff'].shift(1)
-    df_merged['sma200_price_co'] = df_merged.apply(calculate_sma_co,axis=1 )
-    df_change_history=df_merged[df_merged['sma200_price_co']>0][['sma200','close']]
-
-    """
-    
-    df_merged.to_csv(filepath,sep=",")
-
 
     
     
