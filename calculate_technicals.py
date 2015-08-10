@@ -30,7 +30,9 @@ def calculate_technicals():
    
     df_mkt=mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date_time, end_date_time)
     
+    df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, base_path)
     
+    frames=[df_technicals]
     for symbol in list_symbol:    
         try:
             df_symbol=mongodao.getsymbol_data(symbol, start_date_time, end_date_time)
@@ -40,12 +42,18 @@ def calculate_technicals():
             
             
             logger.info("Getting Technicals for symbol=%s ",symbol)
-            technical_manager.calculate_technical(df_symbol,symbol,df_mkt, start_date_time, end_date_time, base_path)
+            df_technicals_new = technical_manager.calculate_technical(df_symbol,symbol,df_mkt, start_date_time, end_date_time, base_path)
+            frames.append(df_technicals_new)
+            #
             logger.info("Got Technicals for symbol=%s ",symbol)
         except Exception ,ex:
             logger.error(ex)
-        
-
+    
+    
+    print frames
+    result = pd.concat(frames)  
+    print result
+    dbdao.save_dataframe(result,"df_technicals");
 
 
 calculate_technicals()

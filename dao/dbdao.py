@@ -21,7 +21,7 @@ def get_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        SELECT DISTINCT symbol FROM list_symbol Where symbol in ("MSFT") and  isactive=1 
+        SELECT DISTINCT symbol FROM list_symbol Where symbol in ("MSFT","AAPL") and  isactive=1 
         """
     cursor = dbcon.cursor()
     cursor.execute(sql)
@@ -30,3 +30,11 @@ def get_symbols_list():
         symbols.append(row[0])
     dbcon.close()
     return symbols
+
+
+def save_dataframe(df,table_name):
+        
+        dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+        df.to_sql(con=dbcon, name=table_name, if_exists='replace', flavor='mysql')

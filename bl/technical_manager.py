@@ -7,24 +7,32 @@ from talib import abstract
 import math
 import matplotlib.pyplot as plt
 
+import pandas as pd
 
 
-def calculate_beta_std(df,df_mkt,symbol):
+def calculate_stddev(df):
+
+    returns = df.pct_change()
+    stddev= returns.std()
+    stddev= stddev.iloc[0]
     
+    volatility= stddev* 100 * math.sqrt(252)
     
+    return {"stddev":stddev,"volatility":volatility}
+
+def calculate_beta(df,df_mkt,symbol):
+    
+    if(symbol==constants.MKT_SYMBOL):
+        return {"beta":1}
     
     df = df.rename(columns={constants.CLOSE: constants.MKT_SYMBOL})
     df_mkt = df_mkt.rename(columns={constants.CLOSE: symbol})[symbol]
     df_merged = df.join(df_mkt)
-    print df_merged[0:5]
-    
     returns = df_merged.pct_change()
-    stddev= returns.std()[symbol]
-    volatility= stddev* 100 * math.sqrt(252)
     variance = returns.var() 
     covariance = returns.cov()
     beta = covariance.loc[symbol, constants.MKT_SYMBOL] / variance.loc[constants.MKT_SYMBOL]
-    return {"beta":beta,"stddev":stddev,"volatility":volatility}
+    return {"beta":beta}
     
 def calculate_res_sup(df):
     latest_row = df.tail(1).iloc[0]
@@ -49,13 +57,12 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,ba
     df_mkt_close = df_mkt.drop(list_drop_cloumns,1)
     
     return_data={}
-    return_data.update(calculate_beta_std(df_symbol_close,df_mkt_close,symbol))
+    return_data.update(calculate_stddev(df_symbol_close))
+    return_data.update(calculate_beta(df_symbol_close,df_mkt_close,symbol))
     return_data.update( calculate_res_sup(df_symbol))
+    
     print return_data
-
-       
-    df_temp=df_symbol_close.pct_change()
-
+    
     mom=abstract.MOM(df_symbol_close, timeperiod=5)
 
     rsi=abstract.RSI(df_symbol_close).round(2)    
@@ -77,12 +84,16 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,ba
     df_merged=df_merged.dropna()
     df_merged['symbol']=symbol
     df_merged['rsi_value'] = df_merged['rsi'].apply(calculate_rsi_values )
-    print df_merged.tail(0)
+    df_latest=df_merged.tail(1)
     
-
+    for key, value in return_data.iteritems():
+        
+        df_latest[key]=value
+    
+    return df_latest
     
     
-
+    
 
 
 def calculate_sma_co(x):
