@@ -38,3 +38,24 @@ def save_dataframe(df,table_name):
                             host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
                              db=cfg.mysqldb_db)
         df.to_sql(con=dbcon, name=table_name, if_exists='replace', flavor='mysql')
+        dbcon.close()
+        
+        
+
+def get_historical_dates():
+        dates = []
+        dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+        sql = """
+        select datetype,date from historicaldates
+        """
+        
+        cursor=dbcon.cursor()
+        cursor.execute(sql)
+        rows=cursor.fetchall()
+        for row in rows:
+            dates.append(row)
+        dbcon.close()
+        return dates
+    

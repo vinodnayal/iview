@@ -8,6 +8,7 @@ import math
 import matplotlib.pyplot as plt
 
 import pandas as pd
+from bl import price_manager
 
 
 def calculate_stddev(df):
@@ -33,7 +34,17 @@ def calculate_beta(df,df_mkt,symbol):
     covariance = returns.cov()
     beta = covariance.loc[symbol, constants.MKT_SYMBOL] / variance.loc[constants.MKT_SYMBOL]
     return {"beta":beta}
+
+def calculate_prices_at_dates(df,hist_dates):
     
+    dates_prices={}
+    for hist_date_tuple in hist_dates:            
+            hist_date=hist_date_tuple[1]
+            price=price_manager.get_price_date(df,hist_date)
+            dates_prices.update({"price_"+hist_date_tuple[0]:price})
+    
+    return dates_prices
+
 def calculate_res_sup(df):
     latest_row = df.tail(1).iloc[0]
     H = latest_row[constants.HIGH]
@@ -50,17 +61,19 @@ def calculate_res_sup(df):
 
 
 
-def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,base_path): 
+def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hist_dates): 
     
     list_drop_cloumns = [ 'open', 'high','low']
     df_symbol_close = df_symbol.drop(list_drop_cloumns,1)
     df_mkt_close = df_mkt.drop(list_drop_cloumns,1)
     
+    
+    
     return_data={}
     return_data.update(calculate_stddev(df_symbol_close))
     return_data.update(calculate_beta(df_symbol_close,df_mkt_close,symbol))
     return_data.update( calculate_res_sup(df_symbol))
-    
+    return_data.update(  calculate_prices_at_dates(df_mkt_close,hist_dates))
     print return_data
     
     mom=abstract.MOM(df_symbol_close, timeperiod=5)
