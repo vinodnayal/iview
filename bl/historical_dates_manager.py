@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from util import loglib, datetimeutil, constants
 from datetime import timedelta
 from dao import mongodao
-logger = loglib.getlogger('technicals')
+logger = loglib.getlogger('historical_dates_manager')
 
 
 
@@ -42,7 +42,7 @@ def gethistory_dates():
     quarterstartdate = dt.date(curdate.year, quatermonth, 1) - timedelta(days=1)                
      
     #mongodbdao = mongoutil.
-    prices_mkt = mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date, end_date)
+    prices_mkt = mongodao.getsymbol_data_temp(constants.MKT_SYMBOL, start_date, end_date)
    
     oneyearbeforedate=curdate - relativedelta(years=1)
     oneMonth=curdate - relativedelta(months=1)

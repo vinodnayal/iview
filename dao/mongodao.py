@@ -1,7 +1,8 @@
 import pymongo
+import MySQLdb
 from MyConfig import MyConfig as cfg
 import pandas
-
+import pandas as pd
 
 def getsymbol_data( symbol, start_date, end_date):
     
@@ -31,3 +32,21 @@ def getsymbol_data( symbol, start_date, end_date):
             
             
         return prices_df
+    
+    
+def getsymbol_data_temp(symbol, start_date_time, end_date_time):
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        select date,close,open,low,high from df_mongo where symbol ='%s'
+        """%symbol
+        
+    df=pd.read_sql(sql, con=dbcon)    
+    
+    df.set_index('date',inplace=True)
+    dbcon.close()
+    return df

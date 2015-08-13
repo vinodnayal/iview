@@ -1,5 +1,6 @@
 import MySQLdb
 import os
+import pandas as pd
 from MyConfig import MyConfig as cfg
 import MySQLdb.cursors
 import pandas.io.sql as psql
@@ -8,8 +9,44 @@ from util import loglib
 import datetime
 from dateutil.relativedelta import relativedelta
 from blaze.tests.test_sql import sql
+from mock import inplace
 
 logger = loglib.getlogger('dbutil_new')
+
+def execute_query(list_sql):
+        
+        dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+        
+    
+        for sql in list_sql:
+            print sql
+            cursor=dbcon.cursor()
+            #print sql
+            cursor.execute(sql)
+
+            print "Number of rows inserted: %d" % cursor.rowcount
+            
+
+        dbcon.commit()
+        
+        
+        dbcon.close()                    
+
+
+
+
+
+def get_data_db_frame(sql):
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+        
+    df=pd.read_sql(sql, con=dbcon)    
+    dbcon.close()
+    return df
+
 
 
 
@@ -21,7 +58,7 @@ def get_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        SELECT DISTINCT symbol FROM list_symbol Where symbol in ("MSFT","AAPL") and  isactive=1 
+        SELECT DISTINCT symbol FROM list_symbol Where symbol in ("MSFT","AAPl") and  isactive=1 
         """
     cursor = dbcon.cursor()
     cursor.execute(sql)
@@ -37,13 +74,14 @@ def save_dataframe(df,table_name):
         dbcon = MySQLdb.connect(
                             host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
                              db=cfg.mysqldb_db)
-        df.to_sql(con=dbcon, name=table_name, if_exists='replace', flavor='mysql')
+        df.to_sql(con=dbcon, name=table_name, if_exists='append', flavor='mysql')
         dbcon.close()
         
         
 
 def get_historical_dates():
         dates = []
+        dates_dict={}
         dbcon = MySQLdb.connect(
                             host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
                              db=cfg.mysqldb_db)
@@ -56,6 +94,7 @@ def get_historical_dates():
         rows=cursor.fetchall()
         for row in rows:
             dates.append(row)
+            dates_dict.update({row[0]:row[1]})
         dbcon.close()
-        return dates
+        return dates_dict
     

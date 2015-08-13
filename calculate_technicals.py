@@ -30,23 +30,31 @@ def calculate_technicals():
     
     hist_dates= dbdao.get_historical_dates()
     
-    df_mkt=mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date_time, end_date_time)
     
-    df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates)
+   
+    
+    days_behind=100
+    
+    df_mkt=mongodao.getsymbol_data_temp(constants.MKT_SYMBOL, start_date_time, end_date_time)
+    
+    dbdao.execute_query(["delete from df_technicals"])
+    df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
     
     frames=[df_technicals]
     for symbol in list_symbol:    
         try:
-            df_symbol=mongodao.getsymbol_data(symbol, start_date_time, end_date_time)
+            df_symbol=mongodao.getsymbol_data_temp(symbol, start_date_time, end_date_time)
                    
             if df_symbol.empty:
                 return
             
             
             logger.info("Getting Technicals for symbol=%s ",symbol)
-            df_technicals_new = technical_manager.calculate_technical(df_symbol,symbol,df_mkt, start_date_time, end_date_time, hist_dates)
+            df_technicals_new = technical_manager.calculate_technical(df_symbol,symbol,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
+            
+            
             frames.append(df_technicals_new)
-            #
+            
             logger.info("Got Technicals for symbol=%s ",symbol)
         except Exception ,ex:
             logger.error(ex)
@@ -56,8 +64,13 @@ def calculate_technicals():
     result = pd.concat(frames)  
     print result
     dbdao.save_dataframe(result,"df_technicals");
+    f_max_min_median_5days = open('queries/high_low_median.sql', 'r')
+    sql_max_min_median_5days= f_max_min_median_5days.read()
+    
+    f_relative = open('queries/relative_strength.sql', 'r')
+    sql_relative= f_relative.read()
 
-
+    dbdao.execute_query([sql_max_min_median_5days,sql_relative])
 calculate_technicals()
 
 
