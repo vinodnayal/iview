@@ -21,12 +21,13 @@ def execute_query(list_sql):
         
     
         for sql in list_sql:
-            print sql
+        
+            logger.info('executing query '+sql)
             cursor=dbcon.cursor()
             #print sql
             cursor.execute(sql)
 
-            print "Number of rows inserted: %d" % cursor.rowcount
+            print cursor.rowcount
             
 
         dbcon.commit()
