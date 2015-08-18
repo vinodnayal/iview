@@ -37,51 +37,11 @@ def rating_calculation(date_150,date_50,date_21,df,date_calculation,symbol):
     return rating
              
     
-def symbol_rating_calculation(df_symbol,symbol,df_mkt,start_date_time,end_date_time,days_behind):
-       
-    list_drop_cloumns = [ 'open', 'high','low']
-    df_symbol_close = df_symbol.drop(list_drop_cloumns,1)
-    
-    #filepath=base_path+"/"+symbol+'.csv'   
-     
-    sma200 = abstract.SMA(df_symbol_close, timeperiod=200).round(2)
-    #print sma200
-    #exit()
-    sma100 = abstract.SMA(df_symbol_close, timeperiod=100).round(2)
-
-    sma21 = abstract.SMA(df_symbol_close, timeperiod=21).round(2)
-    #print sma21
-    df = pd.DataFrame(columns=('sma200', 'sma100','sma21')) 
-    
-    df['sma200']=sma200
-    df['sma100']=sma100
-    df['sma21']=sma21
-    df['close']=df_symbol_close['close']  
-    
-    end_date = datetime.datetime.now()
-    history_start_date=(end_date - relativedelta(days=days_behind))
-    
-    df_rating = pd.DataFrame(columns=('date','rating','symbol'))
-    
-    for x in range(0,days_behind):
-        
-            date_calculation= (history_start_date + relativedelta(days=x))
-            date_150 = (date_calculation - relativedelta(days=150)).date()
-            date_50 = (date_calculation - relativedelta(days=50)).date()
-            date_21=(date_calculation - relativedelta(days=21)).date()
-            date_calculation=date_calculation.date()
-            
-            rating=rating_calculation(date_150,date_50,date_21,df,date_calculation,symbol)
-            
-            df_rating.loc[x]=(date_calculation,rating,symbol)
-            
-    #print df_rating
-    df_rating= df_rating.set_index('date')
-    return df_rating
 
 
 
-def calc_rating(df_merged,days_behind,symbol):
+
+def calc_rating_history(df_merged,days_behind,symbol):
     
     df=df_merged[['sma200', 'sma100','sma20','close']]
     end_date = datetime.datetime.now()

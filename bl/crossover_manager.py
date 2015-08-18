@@ -23,6 +23,26 @@ def give_negative_co_dates(df,column1,column2):
     print(crossing_dates)
     
 
+def bullish_above(df,column1):
+
+    
+   
+    crossing = ((df[column1] >=0) )
+                
+    crossing_dates = df.loc[crossing]
+    print(crossing_dates)
+
+def bearish_below(df,column1):
+
+    
+   
+    crossing = ((df[column1] >=0) )
+                
+    crossing_dates = df.loc[crossing]
+    print(crossing_dates)
+    
+        
+        
 def bullish_co(df,column1):
 
     previous = df[column1].shift(1)

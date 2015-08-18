@@ -43,4 +43,4 @@ def symbol_rating_calc(days_behind):
             
 
 
-symbol_rating_calc(10)
+symbol_rating_calc(50)

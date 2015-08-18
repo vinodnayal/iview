@@ -8,6 +8,7 @@ from BeautifulSoup import BeautifulSoup
 #import csv
 from dao import dbdao
 
+
 def saveindb(filepath,symbol,url,type):
     page=urllib2.urlopen(url,timeout=10)
     soup=BeautifulSoup(page)
@@ -90,3 +91,16 @@ def get_CashFlow(symbol):
     url='http://finance.yahoo.com/q/cf?s='+symbol
     filepath="data/stats/cash_flow/"+symbol+".csv"
     saveindb(filepath, symbol, url,3)
+    
+def yf_get_key_stat(SYM):
+    
+    url = "http://finance.yahoo.com/q/ks?s=" + SYM + "+Key+Statistics"
+    page=urllib2.urlopen(url,timeout=10)
+    print url
+    
+    html = page.read()
+    soup = BeautifulSoup(html)
+    
+    res = [[x.text for x in y.parent.contents] for  y in soup.findAll('td', attrs={"class" : "yfnc_tablehead1"})]
+    
+    return res

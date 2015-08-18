@@ -8,8 +8,8 @@ import math
 import matplotlib.pyplot as plt
 from dao import dbdao
 import pandas as pd
-from bl import price_manager, rating_manager
-from bl import Long_Short
+from bl import price_manager, rating_manager, rsi_manager
+from bl import trend_manager
 
 
 
@@ -30,15 +30,22 @@ def calculate_beta(df,df_mkt,symbol):
     if(symbol==constants.MKT_SYMBOL):
         return {"beta":1}
     
-    df = df.rename(columns={constants.CLOSE: constants.MKT_SYMBOL})
-    df_mkt = df_mkt.rename(columns={constants.CLOSE: symbol})[symbol]
+    df = df.rename(columns={constants.CLOSE: symbol})
+    df_mkt = df_mkt.rename(columns={constants.CLOSE: constants.MKT_SYMBOL})
     df_merged = df.join(df_mkt)
+     
+     
+    #for last year 
+    df_beta=df_merged.tail(252)
     
-   
-    returns = df_merged.pct_change()
+    returns = df_beta.pct_change()
+    
+    
+    
     variance = returns.var() 
     covariance = returns.cov()
     beta = covariance.loc[symbol, constants.MKT_SYMBOL] / variance.loc[constants.MKT_SYMBOL]
+    print beta
     return {"beta":beta}
 
 def calculate_prices_at_dates(df,hist_dates):
@@ -137,7 +144,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     
     df_merged=df_merged.dropna()
     df_merged['symbol']=symbol
-    df_merged['rsi_value'] = df_merged['rsi'].apply(calculate_rsi_values )
+    df_merged['rsi_value'] = df_merged['rsi'].apply(rsi_manager.calculate_rsi_values )
     df_merged['sma3']=sma3
     df_merged['sma5']=sma5
     df_merged['sma9']=sma9
@@ -153,34 +160,34 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     
     
     df_merged[['r1','r2','r3','s1','s2','s3']]=df_symbol.apply(calc_res,axis=1)
-    
-    
-    
-    
-    
-    df_rating=rating_manager.calc_rating(df_merged, days_back, symbol)
+ 
+    df_rating=rating_manager.calc_rating_history(df_merged, days_back, symbol)
     
     df_merged['rating']=df_rating['rating']
     df_merged=df_merged.dropna()
     
     
+    dbdao.save_dataframe(df_merged, "df_history")
     
     #latest data calculations
     return_data={}
     
     return_data.update(calculate_beta(df_symbol_close,df_mkt_close,symbol))
     
+    
     return_data.update(  calculate_prices_at_dates(df_symbol_close,hist_dates))
     
     monthly_date = hist_dates['Monthly']
     weekly_date = hist_dates['Weekly']
     
-    print price_manager.get_specific_date_value(df_merged,monthly_date,'volatility')
-    print price_manager.get_specific_date_value(df_merged,weekly_date,'volatility')
-    exit()
-    df_latest=df_merged.tail(1)    
+    df_latest=df_merged.tail(1)   
+    
+    df_latest['volatility_monthly']= price_manager.get_specific_date_value(df_merged,monthly_date,'volatility')
+    df_latest['volatility_weekly']= price_manager.get_specific_date_value(df_merged,weekly_date,'volatility')
+    
+     
     latest_row=df_merged.tail(1).iloc[0]
-    return_data.update(trend_calculation(latest_row))    
+    return_data.update(trend_manager.trend_calculation(latest_row))    
     
     
     for key, value in return_data.iteritems():
@@ -193,100 +200,6 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     
     
     
-def trend_calculation(latest_row):
-     
-   
-   
-    r1=Long_Short.Short_term(latest_row)
-    short_term_trend=0
-    if r1 >= 5:
-        short_term_trend=constants.VERY_BULLISH
-             
-    if r1 >= 3 and r1 <5:
-        short_term_trend=constants.BULLISH
-        
-    if r1 >= 2 and r1 <3:
-        short_term_trend=constants.NEUTRAL
-    if r1 >= 1 and r1 <2:
-        short_term_trend=constants.BEARISH
-        
-    if r1 == 0 :
-        short_term_trend=constants.VERY_BEARISH
-                      
-    r2=Long_Short.Intermediate_term(latest_row)
-    Inter_term_trend=0
-    if r2 >= 2:
-        Inter_term_trend=constants.VERY_BULLISH
-        
-    if r2 >= 1 and r2 <2:
-        Inter_term_trend=constants.BULLISH
-        
-    if r2 == 0:
-        Inter_term_trend=constants.NEUTRAL
-        
-    r3=Long_Short.Long_term(latest_row)
-    long_term_trend=0
-    if r3 >= 2:
-        long_term_trend=constants.VERY_BULLISH
-        
-    if r3 >= 1 and r3 <2:
-        long_term_trend=constants.BULLISH
-        
-    if r3 == 0:
-        long_term_trend=constants.NEUTRAL
-    
-    
-    rsi_current=latest_row['rsi']
-    rsi_current_text=calculate_rsi_values(rsi_current)
-    
-    short_term_sign=-1
-    inter_term_sign=-1
-    long_term_sign=-1
-    
-    if(short_term_trend==constants.BULLISH or short_term_trend==constants.VERY_BULLISH):
-        short_term_sign=1  
-    
-    if(Inter_term_trend==constants.BULLISH or Inter_term_trend==constants.VERY_BULLISH):
-        inter_term_sign=1
-    
-    if(long_term_trend==constants.BULLISH or long_term_trend==constants.VERY_BULLISH):
-        long_term_sign=1
-    
-    
-    synopsis_rule_id=-1
-    
-    if( inter_term_sign==1 and long_term_sign==1 and rsi_current_text==constants.RSI_Neutral):
-        synopsis_rule_id=1
-    
-    elif(inter_term_sign==1 and long_term_sign==1 and rsi_current_text==constants.RSI_ApproachingOverbought):
-        synopsis_rule_id=6
-        
-    elif(inter_term_sign==1 and long_term_sign==1 and rsi_current_text==constants.RSI_Overbought):
-        synopsis_rule_id=7    
-        
-    elif(inter_term_sign==1 and long_term_sign==1 and rsi_current_text==constants.RSI_ExtremelyOverbought):
-        synopsis_rule_id=8
-        
-    elif(short_term_sign==-1 and inter_term_sign==1 and long_term_sign==1):
-        synopsis_rule_id=2         
-             
-    elif(short_term_sign==-1 and inter_term_sign==1 and long_term_sign==-1):
-        synopsis_rule_id=3
-        
-    elif(short_term_sign==1 and inter_term_sign==1 and long_term_sign==-1):
-        synopsis_rule_id=9             
-        
-    elif(short_term_sign==-1 and inter_term_sign==-1 and long_term_sign==1):
-        synopsis_rule_id=10    
-        
-    elif(short_term_sign==-1 and inter_term_sign==-1 and long_term_sign==-1):
-        synopsis_rule_id=4
-        
-    elif(short_term_sign==1 and inter_term_sign==-1 and long_term_sign==-1):
-        synopsis_rule_id=5    
-    
-    #print short_term_trend,Inter_term_trend,long_term_trend,synopsis_rule_id
-    return {"short_trend":short_term_trend,"inter_trend":Inter_term_trend,"long_trend":long_term_trend,"synopsis_rule_id":synopsis_rule_id}
 
 
 
@@ -303,37 +216,6 @@ def calculate_sma_co(x):
     else:
         return -1
 
-def calculate_rsi_values(p):
-    
-            if (p < 20 ):
-            
-                r = constants.RSI_ExtremelyOversold
-            
-            elif (p >= 20 and p <= 30):
-            
-                r = constants.RSI_Oversold
-            
-            elif (p > 30 and p <= 45):
-            
-                r = constants.RSI_ApproachingOversold
-            
-            elif (p > 45 and p <= 55):
-            
-                r = constants.RSI_Neutral
-            
-            elif (p > 55 and p <= 70):
-            
-                r = constants.RSI_ApproachingOverbought           
-           
-            elif (p > 70 and p <= 80):
-            
-                r = constants.RSI_Overbought
-            
-            elif (p > 80):
-            
-                r = constants.RSI_ExtremelyOverbought
-                
-            return r
 
 
 

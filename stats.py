@@ -1,7 +1,64 @@
 from bl import stats_manager 
 from dao import dbdao
 from util import loglib
+import pandas as pd
 
+def correct_name(x):
+    
+    if('Forward Annual Dividend Yield' in x):
+        return 'DividendYield'
+    list_exlusion=['Moving Average','52','Annual Dividend','% Held by','Avg Vol','Shares Short (prior','Short %']
+    for name in list_exlusion:        
+        if(name in x):
+            return 'drop'
+    
+    x=x.strip().replace(' ','')
+    x=x.strip().replace('/','')
+    return x.split('(')[0].split(':')[0].strip()
+
+
+
+logger = loglib.getlogger('stats')
+
+df_all= pd.DataFrame()
+list_symbol=dbdao.get_symbols_list()
+print list_symbol
+logger.info(list_symbol)
+
+for symbol in list_symbol:
+    try:
+        systats_data = stats_manager.yf_get_key_stat(symbol)
+        logger.info('calculating for symbol '+symbol)
+        systats_data.append(['symbol',symbol])
+        df= pd.DataFrame(systats_data)
+        if(df.shape[0] >10):    
+            df = df.rename(columns={0: 'name'})
+            df['name']= df['name'].apply(correct_name)
+            df= df[df['name']!='drop']
+            df= df.set_index('name').transpose()
+            print df
+            df_all=df_all.append(df)
+    except Exception,ex:
+        logger.error(ex)
+print df_all
+df_all.to_csv('data/df.csv');
+
+dbdao.save_dataframe(df_all,'df_stats')
+exit()
+#df= df.set_index('name')
+drop_columns=['drop','index']
+df.drop(drop_columns,1)
+print df
+exit()
+
+df.transpose()
+#df.to_csv('data/df.csv');
+df.drop(['Trailing Annual Dividend Yield3:'],1,inplace=True)
+dbdao.save_dataframe(df, "df_stats")
+#systats_data.update({'symbol':'MSFT'})
+
+print df        
+exit()
 logger = loglib.getlogger('stats')
 list_symbol=dbdao.get_symbols_list()
 dbdao.execute_query(["Delete from fin_stats_symbol"])

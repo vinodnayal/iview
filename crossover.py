@@ -40,7 +40,7 @@ df_merged['sma20']=sma50
  
 crossover_manager.give_positive_co_dates(df_merged,'sma25','sma20')
  
- 
+
 crossover_manager.give_negative_co_dates(df_merged,'sma25','sma20')
 
 

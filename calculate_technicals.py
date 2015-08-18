@@ -44,7 +44,7 @@ def calculate_technicals():
     for symbol in list_symbol:    
         try:
             df_symbol=mongodao.getsymbol_data_temp(symbol, start_date_time, end_date_time)
-                   
+            
             if df_symbol.empty:
                 return
             
@@ -60,9 +60,9 @@ def calculate_technicals():
             logger.error(ex)
     
     
-    print frames
+    
     result = pd.concat(frames)  
-    print result
+    
     dbdao.save_dataframe(result,"df_technicals");
     f_max_min_median_5days = open('queries/high_low_median.sql', 'r')
     sql_max_min_median_5days= f_max_min_median_5days.read()
