@@ -59,7 +59,7 @@ def get_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        SELECT DISTINCT symbol FROM list_symbol Where  symbol ='AAPL' and isactive=1 limit 100
+        SELECT DISTINCT symbol FROM df_symbol_new  limit 1000
         """
     cursor = dbcon.cursor()
     cursor.execute(sql)
