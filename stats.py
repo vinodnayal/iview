@@ -7,7 +7,7 @@ def correct_name(x):
     
     if('Forward Annual Dividend Yield' in x):
         return 'DividendYield'
-    list_exlusion=['Moving Average','52','Annual Dividend','% Held by','Avg Vol','Shares Short (prior','Short %']
+    list_exlusion=['Moving Average','52','Annual Dividend','% Held by','Avg Vol','Shares Short (prior','Short %','Ex-Dividend Date']
     for name in list_exlusion:        
         if(name in x):
             return 'drop'
@@ -44,23 +44,7 @@ print df_all
 df_all.to_csv('data/df.csv');
 
 dbdao.save_dataframe(df_all,'df_stats')
-exit()
-#df= df.set_index('name')
-drop_columns=['drop','index']
-df.drop(drop_columns,1)
-print df
-exit()
 
-df.transpose()
-#df.to_csv('data/df.csv');
-df.drop(['Trailing Annual Dividend Yield3:'],1,inplace=True)
-dbdao.save_dataframe(df, "df_stats")
-#systats_data.update({'symbol':'MSFT'})
-
-print df        
-exit()
-logger = loglib.getlogger('stats')
-list_symbol=dbdao.get_symbols_list()
 dbdao.execute_query(["Delete from fin_stats_symbol"])
 
 for symbol in list_symbol:

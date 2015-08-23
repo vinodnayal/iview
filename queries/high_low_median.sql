@@ -6,7 +6,7 @@ AVG(high) AS high_median,
 MAX(low) AS low_max ,
 MIN(low) AS low_min ,
 AVG(low) AS low_median 
-FROM df_mongo 
+FROM history_symbol 
 
 WHERE DATE >=(SELECT DATE FROM historicaldates WHERE datetype='5days')
 GROUP BY symbol)AS temp

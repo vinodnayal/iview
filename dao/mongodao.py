@@ -42,7 +42,7 @@ def getsymbol_data_temp(symbol, start_date_time, end_date_time):
                              db=cfg.mysqldb_db)
       
     sql = """
-        select date,close,open,low,high from df_mongo where symbol ='%s'
+        select date,close,open,low,high from history_symbol where symbol ='%s'
         """%symbol
         
     df=pd.read_sql(sql, con=dbcon)    
