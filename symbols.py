@@ -49,11 +49,11 @@ def getsymbol_sector_industry(SYM):
     soup = BeautifulSoup(html)
     
     res = [[x.text for x in y.parent.contents] for  y in soup.findAll('td', attrs={"class" : "yfnc_tabledata1"})]
-    
+    print res
     return  {"symbol":SYM,"sector":res[0][1],"industry":res[1][1],"name":res[2][0]}
 
-def create_sector_industry_data():
-    list_symbol = dbdao.get_symbols_list()
+def create_sector_industry_data(start,end):
+    list_symbol = dbdao.get_symbols_list_limit(start,end)
     list_symbol_data=[]
     for symbol in list_symbol:
         try:
@@ -69,8 +69,15 @@ def create_sector_industry_data():
     dbdao.save_dataframe(df, "df_symbol")
     print df
 
-create_sector_industry_data()
-#get_all_symbols()
+
+# import sys
+# print sys.argv
+# start,end=sys.argv[1],sys.argv[2]
+# print start,end
+# create_sector_industry_data(start,end)
+
+getsymbol_sector_industry('EMFT')
+
 
 
 

@@ -49,7 +49,25 @@ def get_data_db_frame(sql):
     return df
 
 
-
+def get_symbols_list_limit(start,end):
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        SELECT DISTINCT symbol FROM df_symbol_new  limit %s,%s
+        """%(start,end)
+    print sql
+   
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    for row in rows:
+        symbols.append(row[0])
+    dbcon.close()
+    return symbols
 
 def get_symbols_list():
     
