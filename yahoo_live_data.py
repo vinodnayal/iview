@@ -10,7 +10,7 @@ logger = loglib.getloggerWithFile('livedataimport','livedataimport.txt')
 
 def parseStr(s):
     ''' convert string to a float or string '''
-    f = s.strip()
+    f = s.strip().replace('\n','').replace('\r','')
     if f[0] == '"':
         return f.strip('"')
     elif f=='N/A':
@@ -27,50 +27,56 @@ def parseStr(s):
                 return float(f)
         except ValueError: # failed, return original string
             return s 
+    
+header =['yield','dividend','ex_dividend_date','market_cap','market_cap_realtime','float_shares','short_ratio','peg_ratio','revenue','price_sales','price_book',
+             'book_value','earning_per_share','avg_daily_volume','symbol','last','price_change','change_pct','PE','time','prev_close',
+             'eps','market_cap','52weeklow','52weekhigh','volume','name']
+    
+    
+keys=['y','d','q','j1','j3','f6','s7','r5','s6','p5','p6','p4','e','a2','s',     'l1', 'c1',    'p2'  ,   'r', 't1', 'p',       'e'     , 'j1','j','k','v','n'] 
         
 def saveQuote(symbols):
     
-    ''' get current yahoo quote, return a DataFrame  '''
-    # for codes see: http://www.gummy-stuff.org/Yahoo-data.htm
-    if not isinstance(symbols,list):
-        symbols = [symbols]
+
+        if not isinstance(symbols,list):
+            symbols = [symbols]
     
     
-    header =['yield','dividend','ex_dividend_date','market_cap','market_cap_realtime','float_shares','short_ratio','peg_ratio','revenue','price_sales','price_book',
-             'book_value','earning_per_share','avg_daily_volume','name','symbol','last','price_change','change_pct','PE','time','prev_close','eps','market_cap','52weeklow','52weekhigh','volume']
+       
+        request = str.join('',keys )
     
-    
-    keys=['y','d','q','j1','j3','f6','s7','r5','s6','p5','p6','p4','e','a2','n','s',     'l1', 'c1',    'p2'  ,   'r', 't1', 'p',       'e'     , 'j1','j','k','v']    
-    request = str.join('',keys )
-    
-    print len(header)
-    print len(keys)
+   
     
     #data = dict(zip(header,[[] for i in range(len(header))]))
-    list_data=[]
-    urlStr = 'http://finance.yahoo.com/d/quotes.csv?s=%s&f=%s' % (str.join('+',symbols), request)
+        list_data=[]
+        urlStr = 'http://finance.yahoo.com/d/quotes.csv?s=%s&f=%s' % (str.join('+',symbols), request)
     #logger.info(urlStr)
-    try:
+#     try:
         lines = urllib2.urlopen(urlStr,timeout = 10).readlines()
+        
         for line in lines:
+            #print line
             fields = line.strip().split(',')
             data={}
-            for i,field in enumerate(fields):
-                data[header[i]]=parseStr(field)
+            #print fields
+            if( len(fields) >27):
+                fields[26]=fields[26]+fields[27]
+            for i,header_name in enumerate(header):
+                data[header_name]=parseStr(fields[i])
             list_data.append(data)
         df=pandas.DataFrame(list_data)
         df=df.fillna(0)
         
         dbdao.save_dataframe(df,'symbol_live_yahoo')
         
-    except Exception, e:
-        s = "Failed to download:\n{0}".format(e);
-        logger.error(s)
-        exit()
+#     except Exception, e:
+#         
+#         logger.error(e)
+#         exit()
         
         
-def getdataforall_list( list_symbols):
         
+def getdataforall_list( list_symbols):      
         
         
         for i in range(0, len(list_symbols), 40):
@@ -78,6 +84,8 @@ def getdataforall_list( list_symbols):
             logger.info( chunk)    
             saveQuote(chunk)
             
+
            
-           
-getdataforall_list(['MSFT','AAPL']) 
+list_symbol=dbdao.get_symbols_list()
+#list_symbol=['BIK']
+getdataforall_list(list_symbol) 
