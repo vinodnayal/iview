@@ -83,9 +83,11 @@ def getdataforall_list( list_symbols):
             chunk = list_symbols[i:i + 40]    
             logger.info( chunk)    
             saveQuote(chunk)
+        
             
 
-           
+dbdao.execute_query(["delete from symbol_live_yahoo"])           
 list_symbol=dbdao.get_symbols_list()
 #list_symbol=['BIK']
 getdataforall_list(list_symbol) 
+dbdao.execute_query(["insert into live_symbol select * from symbol_live_yahoo;"])

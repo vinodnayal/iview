@@ -89,6 +89,27 @@ def get_symbols_list():
     dbcon.close()
     return symbols
 
+def get_indices_symbols_list():
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        select distinct googsymbol from indices_symbol     
+        """
+
+
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    for row in rows:
+        symbols.append(row[0])
+    dbcon.close()
+    return symbols
+
+
 
 def save_dataframe(df,table_name):
         

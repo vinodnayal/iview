@@ -75,14 +75,17 @@ def create_sector_industry_data(start,end):
     print df
 
 
-import sys
-print sys.argv
-start,end=sys.argv[1],sys.argv[2]
-print start,end
-create_sector_industry_data(start,end)
+# import sys
+# print sys.argv
+# start,end=sys.argv[1],sys.argv[2]
+# print start,end
+# create_sector_industry_data(start,end)
 
 #print getsymbol_sector_industry('XLV')
 
 
-
+sp500 = finsymbols.get_sp500_symbols()
+print sp500
+df_sp500=pd.DataFrame(sp500)
+dbdao.save_dataframe(df_sp500, "spy_symbols")
 
