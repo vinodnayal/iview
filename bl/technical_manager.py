@@ -79,35 +79,18 @@ def calc_res(latest_row):
 
 
 def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hist_dates,days_back): 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
     list_drop_cloumns = [ 'open', 'high','low']
     df_symbol_close = df_symbol.drop(list_drop_cloumns,1)
-    df_mkt_close = df_mkt.drop(list_drop_cloumns,1)
-    
-    
-    
-    
-    
-    mom=abstract.MOM(df_symbol_close, timeperiod=5)
-    
+    df_mkt_close = df_mkt.drop(list_drop_cloumns,1)  
+    mom=abstract.MOM(df_symbol_close, timeperiod=5)    
     macd=abstract.MACD(df_symbol_close)
     df_merged=macd.apply(np.round)
     df_std= abstract.STDDEV(df_symbol_close.pct_change(),timeperiod=100)
     df_merged['stddev']=df_std
     df_merged['volatility']=df_std*100*math.sqrt(252)
-    
-    
     rsi=abstract.RSI(df_symbol_close).round(2)    
     sma20 = abstract.SMA(df_symbol_close, timeperiod=20).round(2)
-    
     sma50 = abstract.SMA(df_symbol_close, timeperiod=50).round(2)
     sma100 = abstract.SMA(df_symbol_close, timeperiod=100).round(2)
     sma200 = abstract.SMA(df_symbol_close, timeperiod=200).round(2)

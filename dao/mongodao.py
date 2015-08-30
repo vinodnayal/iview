@@ -46,7 +46,8 @@ def getsymbol_data_temp(symbol, start_date_time, end_date_time):
         """%symbol
         
     df=pd.read_sql(sql, con=dbcon)    
-    
+    df=df.sort("date")
     df.set_index('date',inplace=True)
+    
     dbcon.close()
     return df

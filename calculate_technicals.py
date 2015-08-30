@@ -46,7 +46,7 @@ def calculate_technicals():
             df_symbol=mongodao.getsymbol_data_temp(symbol, start_date_time, end_date_time)
             
             if df_symbol.empty:
-                return
+                continue
             
             
             logger.info("Getting Technicals for symbol=%s ",symbol)

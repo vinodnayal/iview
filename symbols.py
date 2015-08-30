@@ -50,7 +50,12 @@ def getsymbol_sector_industry(SYM):
     
     res = [[x.text for x in y.parent.contents] for  y in soup.findAll('td', attrs={"class" : "yfnc_tabledata1"})]
     print res
-    return  {"symbol":SYM,"sector":res[0][1],"industry":res[1][1],"name":res[2][0]}
+    if(len(res)>1):
+        industry=res[1][1].replace("amp;","").replace("\n","").replace("\r","")
+        sector=res[0][1].replace("\n","").replace("\r","")
+        return  {"symbol":SYM,"sector":sector,"industry":industry}
+    else:
+        return {"symbol":SYM,"sector":"","industry":""}
 
 def create_sector_industry_data(start,end):
     list_symbol = dbdao.get_symbols_list_limit(start,end)
@@ -66,17 +71,17 @@ def create_sector_industry_data(start,end):
         
     df=pd.DataFrame(list_symbol_data)
     df.set_index("symbol",inplace=True)
-    dbdao.save_dataframe(df, "df_symbol")
+    dbdao.save_dataframe(df, "df_symbol_sector_industry")
     print df
 
 
-# import sys
-# print sys.argv
-# start,end=sys.argv[1],sys.argv[2]
-# print start,end
-# create_sector_industry_data(start,end)
+import sys
+print sys.argv
+start,end=sys.argv[1],sys.argv[2]
+print start,end
+create_sector_industry_data(start,end)
 
-getsymbol_sector_industry('EMFT')
+#print getsymbol_sector_industry('XLV')
 
 
 

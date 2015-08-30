@@ -57,7 +57,7 @@ def get_symbols_list_limit(start,end):
                              db=cfg.mysqldb_db)
       
     sql = """
-        SELECT DISTINCT symbol FROM df_symbol_new  limit %s,%s
+        SELECT DISTINCT symbol FROM list_symbol  limit %s,%s
         """%(start,end)
     print sql
    
@@ -77,12 +77,7 @@ def get_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        select distinct symbol from df_etf
-        union 
-        select distinct symbol from df_symbol_latest  where symbol not like '%.%'
-        union 
-        select distinct symbol from list_symbol
-         
+        select distinct symbol from list_symbol     
         """
 
 
