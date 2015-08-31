@@ -89,6 +89,6 @@ def getdataforall_list( list_symbols):
 
 dbdao.execute_query(["delete from symbol_live_yahoo"])           
 list_symbol=dbdao.get_symbols_list()
-list_symbol=['WBA']
 getdataforall_list(list_symbol) 
+#TODO update query
 dbdao.execute_query(["delete from live_symbol","insert into live_symbol select * from symbol_live_yahoo;"])
