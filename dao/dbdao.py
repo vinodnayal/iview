@@ -13,6 +13,38 @@ from mock import inplace
 
 logger = loglib.getlogger('dbutil_new')
 
+
+def getdataframeforquery(sql):
+        dbcon = MySQLdb.connect(
+                                host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                                 db=cfg.mysqldb_db, cursorclass=MySQLdb.cursors.DictCursor) 
+         
+    
+        df = psql.read_sql(sql, con=dbcon)
+        dbcon.close()
+        return df
+    
+def get_data_query():
+    
+    
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        select short_trend,inter_trend,long_trend,rsi from df_technical where symbol='MSFT';
+
+        """
+    print sql
+   
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    
+    dbcon.close()
+    return rows
+
+
 def execute_query(list_sql):
         
         dbcon = MySQLdb.connect(
