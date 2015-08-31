@@ -68,6 +68,29 @@ def get_symbols_list_limit(start,end):
         symbols.append(row[0])
     dbcon.close()
     return symbols
+def get_missing_stats_symbol(start,end):
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+                    select distinct t1.symbol from list_symbol  t1 
+            left join stats t2 
+            on t1.symbol=t2.symbol
+            where t2.symbol is null limit %s,%s
+        """%(start,end)
+    print sql
+   
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    for row in rows:
+        symbols.append(row[0])
+    dbcon.close()
+    return symbols
+
 
 def get_symbols_list():
     
@@ -77,7 +100,7 @@ def get_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        select distinct symbol from list_symbol     
+        select distinct symbol from list_symbol
         """
 
 
@@ -88,6 +111,31 @@ def get_symbols_list():
         symbols.append(row[0])
     dbcon.close()
     return symbols
+
+def get_symbols_list_missing():
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        select t1.symbol from spy_symbol t1
+            left join list_symbol t2
+            on t1.symbol=t2.symbol
+            where t2.symbol is null    
+        """
+
+
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    for row in rows:
+        symbols.append(row[0])
+    dbcon.close()
+    return symbols
+
+
 
 def get_indices_symbols_list():
     

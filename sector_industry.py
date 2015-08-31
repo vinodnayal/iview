@@ -39,9 +39,7 @@ def get_csv(url):
                         list_symbol.append({"name":name,"symbol":symbol})
                     
         
-        print sector
-        print industry
-        
+   
         df=pd.DataFrame(list_symbol)
         df.set_index('symbol',inplace=True)
         df['sector']=sector

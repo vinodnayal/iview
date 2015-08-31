@@ -37,12 +37,11 @@ def gethistory_dates():
     else:
                     
                         quatermonth = 1;
-    
-    weekstart = curdate - timedelta(days=(curdate.weekday() + 1) % 7)
+    weekstart = curdate - timedelta(days=(curdate.weekday() + 1))
     quarterstartdate = dt.date(curdate.year, quatermonth, 1) - timedelta(days=1)                
      
     #mongodbdao = mongoutil.
-    prices_mkt = mongodao.getsymbol_data_temp(constants.MKT_SYMBOL, start_date, end_date)
+    prices_mkt = mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date, end_date)
    
     oneyearbeforedate=curdate - relativedelta(years=1)
     oneMonth=curdate - relativedelta(months=1)

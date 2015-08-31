@@ -61,7 +61,7 @@ sql_goog_only="""insert into live_symbol(symbol,price_change,change_pct,last)
                 l_fix from google_live_symbol t1 
                 left join live_symbol t2 
                 on t1.t=t2.symbol
-                where t2.symbol is null;"""
+                where t2.symbol is null; and t1.symbol !=''"""
 
 sql_indices=""" insert into live_symbol(symbol,price_change,change_pct,last)
                 select 

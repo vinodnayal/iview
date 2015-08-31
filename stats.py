@@ -19,9 +19,18 @@ def correct_name(x):
 
 
 logger = loglib.getlogger('stats')
+import sys
+print sys.argv
+start,end=sys.argv[1],sys.argv[2]
 
 df_all= pd.DataFrame()
-list_symbol=dbdao.get_symbols_list()
+#list_symbol=dbdao.get_symbols_list_limit(start,end)
+list_symbol=dbdao.get_missing_stats_symbol(start,end)
+
+
+if(start=='0'):
+        dbdao.execute_query(["delete from df_stats"])
+        
 print list_symbol
 logger.info(list_symbol)
 
@@ -43,11 +52,12 @@ for symbol in list_symbol:
 print df_all
 df_all.to_csv('data/df.csv');
 
+
 dbdao.save_dataframe(df_all,'df_stats')
 
-dbdao.execute_query(["Delete from fin_stats_symbol"])
-
-for symbol in list_symbol:
-    list_function=[stats_manager.get_IncomeStatement(symbol),stats_manager.get_BalanceSheet(symbol),stats_manager.get_CashFlow(symbol)]
-    for function_name in list_function:
-        function_name 
+# dbdao.execute_query(["Delete from fin_stats_symbol"])
+# 
+# for symbol in list_symbol:
+#     list_function=[stats_manager.get_IncomeStatement(symbol),stats_manager.get_BalanceSheet(symbol),stats_manager.get_CashFlow(symbol)]
+#     for function_name in list_function:
+#         function_name 

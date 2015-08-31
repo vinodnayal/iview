@@ -7,7 +7,7 @@ import pandas as pd
 def getsymbol_data( symbol, start_date, end_date):
     
         # connection to server
-        con_mongo = pymongo.Connection(cfg.mongodb_host, port=cfg.mongodb_port)
+        con_mongo = pymongo.MongoClient(cfg.mongodb_host, port=cfg.mongodb_port)
         #database is chartlab
         db_chartlab = con_mongo.chartlab
         # prices_data = db_chartlab.symbolshistorical.find({"symbol":symbol})

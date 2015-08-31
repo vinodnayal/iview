@@ -50,10 +50,11 @@ def saveQuote(symbols):
     #data = dict(zip(header,[[] for i in range(len(header))]))
         list_data=[]
         urlStr = 'http://finance.yahoo.com/d/quotes.csv?s=%s&f=%s' % (str.join('+',symbols), request)
+        print urlStr
     #logger.info(urlStr)
 #     try:
         lines = urllib2.urlopen(urlStr,timeout = 10).readlines()
-        
+        print lines
         for line in lines:
             #print line
             fields = line.strip().split(',')
@@ -88,6 +89,6 @@ def getdataforall_list( list_symbols):
 
 dbdao.execute_query(["delete from symbol_live_yahoo"])           
 list_symbol=dbdao.get_symbols_list()
-#list_symbol=['BIK']
+list_symbol=['WBA']
 getdataforall_list(list_symbol) 
-dbdao.execute_query(["insert into live_symbol select * from symbol_live_yahoo;"])
+dbdao.execute_query(["delete from live_symbol","insert into live_symbol select * from symbol_live_yahoo;"])

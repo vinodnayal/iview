@@ -53,12 +53,13 @@ def getsymbol_sector_industry(SYM):
     if(len(res)>1):
         industry=res[1][1].replace("amp;","").replace("\n","").replace("\r","")
         sector=res[0][1].replace("\n","").replace("\r","")
-        return  {"symbol":SYM,"sector":sector,"industry":industry}
+        name=res[2][0].replace("\n","").replace("\r","")
+        return  {"symbol":SYM,"sector":sector,"industry":industry,"name":name}
     else:
-        return {"symbol":SYM,"sector":"","industry":""}
+        return {"symbol":SYM,"sector":"","industry":"",name:""}
 
-def create_sector_industry_data(start,end):
-    list_symbol = dbdao.get_symbols_list_limit(start,end)
+def create_sector_industry_data(list_symbol):
+    #list_symbol = dbdao.get_symbols_list_limit(start,end)
     list_symbol_data=[]
     for symbol in list_symbol:
         try:
@@ -71,21 +72,30 @@ def create_sector_industry_data(start,end):
         
     df=pd.DataFrame(list_symbol_data)
     df.set_index("symbol",inplace=True)
+    
     dbdao.save_dataframe(df, "df_symbol_sector_industry")
     print df
 
+dbdao.execute_query(["delete from df_symbol_sector_industry"])
+list_symbol = dbdao.get_symbols_list_missing()
+create_sector_industry_data(list_symbol)
+sql_insert=""" insert into list_symbol(symbol,companyname,sectorid,industryid)
+select t1.symbol,t1.name,s1.id,i1.industryid from df_symbol_sector_industry t1
+left join sectors s1 on t1.sector=s1.name
+left join industries i1 on t1.industry=i1.industryname"""
+dbdao.execute_query([sql_insert]) 
 
 # import sys
 # print sys.argv
 # start,end=sys.argv[1],sys.argv[2]
 # print start,end
-# create_sector_industry_data(start,end)
+
 
 #print getsymbol_sector_industry('XLV')
 
 
-sp500 = finsymbols.get_sp500_symbols()
-print sp500
-df_sp500=pd.DataFrame(sp500)
-dbdao.save_dataframe(df_sp500, "spy_symbols")
+# sp500 = finsymbols.get_sp500_symbols()
+# print sp500
+# df_sp500=pd.DataFrame(sp500)
+# dbdao.save_dataframe(df_sp500, "spy_symbols")
 
