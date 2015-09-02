@@ -1,0 +1,3 @@
+update live_symbol
+set change_pct=REPLACE(REPLACE(change_pct,"+",""),"%",""), 
+ price_change=REPLACE(REPLACE(price_change,"+",""),"%","") 
