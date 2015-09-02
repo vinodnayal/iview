@@ -1,4 +1,4 @@
-from dao import dbdao
+from dao2 import dbdao
 from util import loglib, datetimeutil, constants
 from bl import historical_dates_manager
 import csv

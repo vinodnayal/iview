@@ -3,12 +3,12 @@ import talib
 from talib import MA_Type
 import numpy as np
 from talib import abstract
-from dao import dbdao,mongodao
+from dao2 import dbdao,mongodao
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.misc import derivative
-import dao.mongodao as mongodao
+import dao2.mongodao as mongodao
 import datetime
 from dateutil.relativedelta import relativedelta
 import pandas as pd

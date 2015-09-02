@@ -1,4 +1,4 @@
-from dao import dbdao
+from dao2 import dbdao
 import pandas as pd
 from bl import Trend_types
 df= dbdao.get_data_db_frame("select symbol,short_trend,inter_trend,long_trend,rsi_value from df_technical where symbol='MSFT';")

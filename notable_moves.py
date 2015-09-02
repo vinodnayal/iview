@@ -2,7 +2,7 @@ from dao import dbdao
 from util import loglib
 
 
-logger = loglib.getlogger('news')
+logger = loglib.getlogger('notable moves')
 
 f=open('queries/notable_moves.sql')
 

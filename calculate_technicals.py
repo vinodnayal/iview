@@ -5,7 +5,6 @@ import numpy as np
 from talib import abstract
 from dao import dbdao,mongodao
 
-import dao.mongodao as mongodao
 import datetime
 from dateutil.relativedelta import relativedelta
 import pandas as pd

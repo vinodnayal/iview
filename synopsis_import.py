@@ -1,5 +1,5 @@
 import pandas as pd
-from dao import dbdao
+from dao2 import dbdao
 
 df=pd.read_csv('data/synopsis/synopsis_rules.csv')
 print df    

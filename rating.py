@@ -10,8 +10,8 @@ from util import loglib
 import csv
 from util import constants
 import os
-from dao import mongodao
-from dao import dbdao
+from dao2 import mongodao
+from dao2 import dbdao
 from bl import rating_manager
 
 logger = loglib.getlogger('rating')

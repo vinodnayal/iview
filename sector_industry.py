@@ -2,7 +2,7 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
 import pandas as pd
-from dao import dbdao
+from dao2 import dbdao
 from util import loglib
 
 logger = loglib.getlogger('sector_industry')

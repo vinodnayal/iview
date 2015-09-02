@@ -1,5 +1,5 @@
 from util import loglib
-from dao import dbdao
+from dao2 import dbdao
 import os
 import urllib
 import urllib2
