@@ -20,7 +20,7 @@ t2.last,
  
  
 **************************************************************************************************************************************************** 
- 
+-- etf assets 
 
 SELECT * FROM iviewmarkets.perf_returns
 
@@ -29,19 +29,21 @@ where asset_name='ETF' and asset_detail !='ETF' and asset_detail not like '%Cap%
 order by change_weekly desc limit 10;
 
 ****************************************************************************************************************************************************
+-- global mkts
 
 SELECT * FROM perf_returns t1 
 join etfsymbols_worldmkt t2
 on t1.symbol=t2.symbol;
 
 ****************************************************************************************************************************************************
+-- all sectors
 
 SELECT * FROM perf_returns t1 
 join sectors t2
 on t1.symbol=t2.symbol; 
 
 ****************************************************************************************************************************************************
-
+-- all etfs
 
 SELECT * FROM iviewmarkets.perf_returns
 where asset_name='ETF' 
