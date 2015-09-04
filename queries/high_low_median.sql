@@ -23,4 +23,18 @@ t.low_5day_median=temp.low_median,
 t.high_5day_max=temp.high_max,
 t.high_5day_min=temp.high_max,
 t.high_5day_median=temp.high_median
-WHERE t.symbol=temp.symbol
+WHERE t.symbol=temp.symbol;
+
+
+-- rsi text update
+update technicals_symbol,ctratingvalues
+set rsi_text=ctratingtext
+
+where technicals_symbol.rsi_value=ctratingvalues.ctrating
+
+-- std50days
+
+
+update technicals_symbol
+
+set std50days =(close-sma50)/(close*stddev);

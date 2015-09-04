@@ -157,6 +157,13 @@ SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FRO
     LIMIT 10;
 
 
+delete from notable_moves_symbol;
+
+
+insert into notable_moves_symbol(symbol,type,per_change)
+
+select symbol,typeid,per_change from temp_notable;
+
 
 
 
