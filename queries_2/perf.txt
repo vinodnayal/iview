@@ -2,13 +2,13 @@ drop table perf_returns;
 create table perf_returns
 select t1.symbol,t3.companyname,t3.assetid,t4.asset_name,t4.asset_detail,
 t2.last,
-100*(t2.last-t1.price_weekly)/t1.price_weekly as change_weekly,
-100*(t2.last-t1.price_monthly)/t1.price_monthly as change_monthly,
-100*(t2.last-t1.price_yearly)/t1.price_yearly as change_yearly,
-100*(t2.last-t1.price_previousDay)/t1.price_previousDay as change_previousDay,
-100*(t2.last-t1.price_Quaterly)/t1.price_Quaterly as change_Quaterly,
-100*(t2.last-t1.price_Quaterly)/t1.price_Quaterly as change_SixMonth,
-100*(t2.last-t1.price_oneyearbeforedate)/t1.price_oneyearbeforedate as change_oneyearbeforedate
+round(100*(t2.last-t1.price_weekly)/t1.price_weekly,2) as change_weekly,
+round(100*(t2.last-t1.price_monthly)/t1.price_monthly,2) as change_monthly,
+round(100*(t2.last-t1.price_yearly)/t1.price_yearly ,2) as change_yearly,
+round(100*(t2.last-t1.price_previousDay)/t1.price_previousDay ,2) as change_previousDay,
+round(100*(t2.last-t1.price_Quaterly)/t1.price_Quaterly ,2) as change_Quaterly,
+round(100*(t2.last-t1.price_Quaterly)/t1.price_Quaterly ,2) as change_SixMonth,
+round(100*(t2.last-t1.price_oneyearbeforedate)/t1.price_oneyearbeforedate ,2) as change_oneyearbeforedate
 
  from technicals_symbol t1
  join live_symbol t2
@@ -16,7 +16,6 @@ t2.last,
  join list_symbol t3 on t1.symbol=t3.symbol
  join assets t4 on t3.assetid=t4.asset_id
  where t2.last !=0 and t1.price_weekly !=0;
- 
  
  
 **************************************************************************************************************************************************** 
