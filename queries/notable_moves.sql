@@ -9,9 +9,9 @@ SELECT temp1.symbol,typeid,temp1.per_change FROM
 (
 SELECT h1.date as cdate,h2.date as pdate, h1.symbol,h1.open,h2.high,100*((h1.open-h2.high)/h2.high) AS per_change FROM 
 (
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
 JOIN 
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
 
 ON h1.symbol=h2.symbol   )
 ) AS temp1,
@@ -24,9 +24,9 @@ LIMIT 10;
 INSERT INTO temp_notable (symbol,typeid,per_change) 
 SELECT temp1.symbol,typeid,temp1.per_change FROM
 (SELECT h1.symbol,h1.open,h2.high,100*((h1.open-h2.low)/h2.low) AS per_change FROM 
-((SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
+((SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
 JOIN 
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
 ON h1.symbol=h2.symbol   )) AS temp1,
 notable_moves_types 
 WHERE NAME='Full Gap Down' AND per_change<0 and per_change>-100
@@ -41,9 +41,9 @@ SELECT temp1.symbol,typeid,temp1.per_change FROM
 (
 SELECT h1.date as cdate,h2.date as pdate, h1.symbol,h1.open,h2.high,100*((h1.open-h2.close)/h2.close) AS per_change FROM 
 (
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
 JOIN 
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
 
 ON h1.symbol=h2.symbol   )
 ) AS temp1,
@@ -55,9 +55,9 @@ LIMIT 10;
 INSERT INTO temp_notable (symbol,typeid,per_change) 
 SELECT temp1.symbol,typeid,temp1.per_change FROM
 (SELECT h1.symbol,h1.open,h2.high,100*((h1.open-h2.close)/h2.close) AS per_change FROM 
-((SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
+((SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current') AND close >1 )AS h1
 JOIN 
-(SELECT * FROM history_symbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
+(SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
 ON h1.symbol=h2.symbol   )) AS temp1,
 notable_moves_types 
 WHERE NAME='Full Gap Down' AND per_change<0 and per_change>-100
@@ -107,6 +107,8 @@ LIMIT 10;
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
 SELECT t1.symbol,t2.typeid,t1.change_pct AS per_change FROM live_symbol AS t1
+join spy_symbol as s
+on t1.symbol=s.symbol
 JOIN notable_moves_types AS t2
 WHERE t1.change_pct>0  and t1.change_pct<100 AND t1.last > 1 and t2.NAME="Top Performer"
 ORDER BY ABS(t1.change_pct) DESC
@@ -114,6 +116,8 @@ LIMIT 10;
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
 SELECT t1.symbol,t2.typeid,t1.change_pct AS per_change FROM live_symbol as t1
+join spy_symbol as s
+on t1.symbol=s.symbol
 JOIN notable_moves_types AS t2
 WHERE change_pct<0 and t2.NAME="Bottom Performer" and  t1.change_pct>-100 AND t1.last > 1
 ORDER BY ABS(t1.change_pct) DESC
@@ -128,11 +132,11 @@ LIMIT 10;
 
 delete from symbol_avg_volume;
 insert into  symbol_avg_volume(symbol,volume)
-select symbol,avg(volume) from history_symbol where date >='2015-05-01' and volume > 1000 group by symbol  ; 
+select symbol,avg(volume) from history_spysymbol where date >='2015-05-01' and volume > 1000 group by symbol  ; 
 
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
-SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FROM history_symbol AS h
+SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FROM history_spysymbol AS h
     JOIN symbol_avg_volume AS l 
     ON h.symbol=l.symbol
     JOIN notable_moves_types AS n
@@ -146,7 +150,7 @@ SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FRO
 
     INSERT INTO temp_notable (symbol,typeid,per_change)
 
-    SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FROM history_symbol AS h
+    SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FROM history_spysymbol AS h
     JOIN symbol_avg_volume AS l 
     ON h.symbol=l.symbol
     JOIN notable_moves_types AS n
