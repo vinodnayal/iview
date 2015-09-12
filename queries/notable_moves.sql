@@ -48,7 +48,7 @@ JOIN
 ON h1.symbol=h2.symbol   )
 ) AS temp1,
 notable_moves_types 
-WHERE Name="Full Gap Up" AND per_change>0 and  per_change<100
+WHERE Name="Partial Gap up" AND per_change>0 and  per_change<100
 ORDER BY  ABS(temp1.per_change) DESC 
 LIMIT 10;
 
@@ -60,7 +60,7 @@ JOIN
 (SELECT * FROM history_spysymbol WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay') AND close >1 )AS h2
 ON h1.symbol=h2.symbol   )) AS temp1,
 notable_moves_types 
-WHERE NAME='Full Gap Down' AND per_change<0 and per_change>-100
+WHERE NAME='Partial Gap Down' AND per_change<0 and per_change>-100
 ORDER BY  temp1.per_change asc 
 LIMIT 10;
 
@@ -89,6 +89,8 @@ INSERT INTO temp_notable (symbol,typeid)
 SELECT t1.symbol,t2.typeid FROM
 (SELECT symbol, rsi FROM technicals_symbol ) AS t1
 JOIN notable_moves_types AS t2
+join spy_symbol t3 
+on t1.symbol=t3.symbol
 WHERE t2.NAME="Most Overbought"
 ORDER BY t1.rsi DESC
 LIMIT 10;
@@ -98,7 +100,9 @@ INSERT INTO temp_notable (symbol,typeid)
 SELECT t1.symbol,t2.typeid FROM
 (SELECT symbol, rsi FROM technicals_symbol ) AS t1
 JOIN notable_moves_types AS t2
-WHERE t2.NAME="Most Overbought"
+join spy_symbol t3 
+on t1.symbol=t3.symbol
+WHERE t2.NAME="Most OverSold"
 ORDER BY t1.rsi ASC
 LIMIT 10;
 
@@ -142,7 +146,7 @@ SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FRO
     JOIN notable_moves_types AS n
     WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current')
     AND (100*(h.volume -l.volume)/(l.volume))>0 and h.close>1 and h.volume > 10000 and l.volume > 10000
-    AND n.name="New Positive Volume"
+    AND n.name="Positive Volume"
     ORDER BY per_change DESC
     LIMIT 10;
 
@@ -156,7 +160,7 @@ SELECT h.symbol,n.typeid,(100*(h.volume -l.volume)/(l.volume)) AS per_change FRO
     JOIN notable_moves_types AS n
     WHERE DATE = (SELECT DATE FROM historicaldates WHERE DateType='current')
     AND (100*(h.volume -l.volume)/(l.volume))<0 and  h.close>1 and  h.volume > 10000 and l.volume > 10000
-    AND n.name="New Negative Volume"
+    AND n.name="Negative Volume"
     ORDER BY ABS(per_change) DESC
     LIMIT 10;
 
