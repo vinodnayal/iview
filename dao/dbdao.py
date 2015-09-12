@@ -68,7 +68,27 @@ def execute_query(list_sql):
         dbcon.close()                    
 
 
+def insert_holdingdata(file_name):
+        
+        dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+        
+        sql = """
+        LOAD DATA LOCAL INFILE '%s'
+        INTO TABLE symbol_holdings 
+        FIELDS TERMINATED BY '*'
+        LINES TERMINATED BY "\n" ;
+        """%(file_name)
+        print sql
+        
+        cursor=dbcon.cursor()
+        cursor.execute(sql.format(file_name))
 
+        dbcon.commit()
+        
+        print "Number of rows inserted: %d" % cursor.rowcount
+        dbcon.close()
 
 
 def get_data_db_frame(sql):
