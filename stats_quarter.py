@@ -10,7 +10,7 @@ start,end=sys.argv[1],sys.argv[2]
 print start,end
 list_symbol=dbdao.get_symbols_list_limit(start, end)
 for symbol in list_symbol:
-    list_function=[stats_manager.get_IncomeStatement(symbol),stats_manager.get_BalanceSheet(symbol),stats_manager.get_CashFlow(symbol)]
-    #list_function=[stats_manager.get_IncomeStatement(symbol)]
+    #list_function=[stats_manager.get_IncomeStatement(symbol),stats_manager.get_BalanceSheet(symbol),stats_manager.get_CashFlow(symbol)]
+    list_function=[stats_manager.get_BalanceSheet(symbol)]
     for function_name in list_function:
         function_name 
