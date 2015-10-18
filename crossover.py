@@ -1,23 +1,17 @@
-import talib as ta
-import numpy
-from talib import abstract
-import talib
-from talib import MA_Type
-import numpy as np
-from talib import abstract
-from dao2 import dbdao,mongodao
 
-import dao2.mongodao as mongodao
+from talib import abstract
+
+
 import datetime
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 
 from util import loglib
 
-import csv
 from util import constants
-import os
-from bl import technical_manager, crossover_manager
+
+from bl import  crossover_manager
+from dao import mongodao
 
 end_date_time = datetime.datetime.now()  # mysqldb.get_maxdate()[0]   
 start_date_time = end_date_time - relativedelta(days=constants.DAYS_FOR_TECHNICALS)

@@ -5,7 +5,7 @@ import numpy as np
 from talib import abstract
 import math
 import matplotlib.pyplot as plt
-from dao2 import dbdao
+from dao import dbdao
 import pandas as pd
 from bl import price_manager, rating_manager, rsi_manager
 

@@ -2,16 +2,18 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
 import pandas as pd
-from dao2 import dbdao
+
 from util import loglib
 import json
+from dao import dbdao
 
 logger = loglib.getlogger('google_live')
 
 
 def getgoogledata(list_symbol):
     
-    symbols = str.join(',',list_symbol)        
+    symbols = str.join(',',list_symbol)   
+    print symbols     
     url = 'http://finance.google.com/finance/info?q=%s' % symbols
     print url
     page = urllib2.urlopen(url,timeout = 10)
@@ -25,7 +27,7 @@ def getgoogledata(list_symbol):
 
 dbdao.execute_query(['delete from google_live_indices_symbol','delete from google_live_symbol'])
 list_symbol=dbdao.get_indices_symbols_list()
-
+print list_symbol
 df=getgoogledata(list_symbol)
 
 dbdao.save_dataframe(df, "google_live_indices_symbol")
@@ -44,6 +46,7 @@ for i in range(0, len(list_symbol), 40):
 sql_update=""" update live_symbol t1 , google_live_symbol t2
             set price_change=t2.c_fix,
             change_pct=cp_fix,
+            
             last=l_fix
             where t1.symbol=t2.t"""
 
@@ -77,5 +80,8 @@ sql_indices=""" insert into live_symbol(symbol,price_change,change_pct,last)
                 where t1.symbol is null                
                 
                 """
-
-dbdao.execute_query([sql_update,sql_indices_update])
+sql_update_change_pct_value=""" update live_symbol t1 
+set  t1.change_pct_value= 
+case  t1.change_pct when '' then 0.0 
+ else cast( trim(replace(replace(t1.change_pct,"%",""),"+","")) as decimal(10,2) )end; """;
+dbdao.execute_query([sql_update,sql_indices_update,sql_update_change_pct_value])

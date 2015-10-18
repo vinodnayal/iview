@@ -13,7 +13,20 @@ from mock import inplace
 
 logger = loglib.getlogger('dbutil_new')
 
-
+def remove_symbol( symbol):
+            
+            dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+    
+    
+            sql = "delete from  history_symbol WHERE symbol='" + symbol + "'"
+            cursor = dbcon.cursor()
+            cursor.execute(sql) 
+            dbcon.commit()           
+            dbcon.close()
+           
+        
 def getdataframeforquery(sql):
         dbcon = MySQLdb.connect(
                                 host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
@@ -164,6 +177,28 @@ def get_symbols_list():
     dbcon.close()
     return symbols
 
+
+def get_spy_symbols_list():
+    
+    symbols=[]
+    dbcon = MySQLdb.connect(
+                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
+                             db=cfg.mysqldb_db)
+      
+    sql = """
+        select symbol from spy_symbol
+        """
+
+
+    cursor = dbcon.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    for row in rows:
+        symbols.append(row[0])
+    dbcon.close()
+    return symbols
+
+
 def get_symbols_list_missing():
     
     symbols=[]
@@ -197,7 +232,7 @@ def get_indices_symbols_list():
                              db=cfg.mysqldb_db)
       
     sql = """
-        select distinct googsymbol from indices_symbol     
+        select distinct googsymbol from indices_symbol    where  googsymbol is not null
         """
 
 

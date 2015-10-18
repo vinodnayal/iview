@@ -1,9 +1,8 @@
-delete from temp_notable;
 
 
 -- Full Gap queries
     
-INSERT INTO temp_notable (symbol,typeid,per_change) 
+create table temp_notable as
 
 SELECT temp1.symbol,typeid,temp1.per_change FROM
 (
@@ -114,21 +113,21 @@ LIMIT 10;
 
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
-SELECT t1.symbol,t2.typeid,t1.change_pct AS per_change FROM live_symbol AS t1
+SELECT t1.symbol,t2.typeid,t1.change_pct_value AS per_change FROM live_symbol AS t1
 join spy_symbol as s
 on t1.symbol=s.symbol
 JOIN notable_moves_types AS t2
-WHERE t1.change_pct>0  and t1.change_pct<100 AND t1.last > 1 and t2.NAME="Top Performer"
-ORDER BY ABS(t1.change_pct) DESC
+WHERE t1.change_pct_value>0  and t1.change_pct_value<100 AND t1.last > 1 and t2.NAME="Top Performer"
+ORDER BY ABS(t1.change_pct_value) DESC
 LIMIT 10;
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
-SELECT t1.symbol,t2.typeid,t1.change_pct AS per_change FROM live_symbol as t1
+SELECT t1.symbol,t2.typeid,t1.change_pct_value AS per_change FROM live_symbol as t1
 join spy_symbol as s
 on t1.symbol=s.symbol
 JOIN notable_moves_types AS t2
-WHERE change_pct<0 and t2.NAME="Bottom Performer" and  t1.change_pct>-100 AND t1.last > 1
-ORDER BY ABS(t1.change_pct) DESC
+WHERE change_pct_value<0 and t2.NAME="Bottom Performer" and  t1.change_pct_value>-100 AND t1.last > 1
+ORDER BY ABS(t1.change_pct_value) DESC
 LIMIT 10;
 
 
@@ -237,6 +236,8 @@ delete from notable_moves_symbol;
 insert into notable_moves_symbol(symbol,type,per_change)
 
 select symbol,typeid,per_change from temp_notable;
+
+drop table temp_notable;
 
 
 

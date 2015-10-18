@@ -33,7 +33,15 @@ def getsymbol_data( symbol, start_date, end_date):
             
         return prices_df
     
-    
+
+def remove_symbol(symbol,coll_name):
+        # symbol_list = ["CAH", "CELG", "CMG", "COP", "CTSH", "EOG", "HES", "MCK", "MHFI"]
+       
+        con_mongo = pymongo.MongoClient(cfg.mongodb_host, port=cfg.mongodb_port)
+        db_chartlab = con_mongo.chartlab
+        db_chartlab.symbolshistorical.remove({"symbol":symbol})
+        con_mongo.close()
+        
 def getsymbol_data_temp(symbol, start_date_time, end_date_time):
     
     symbols=[]

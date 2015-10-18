@@ -5,7 +5,7 @@ from dao import dbdao
 
 from util import loglib
 from boto.ec2.volume import Volume
-logger = loglib.getloggerWithFile('livedataimport','livedataimport.txt')
+logger = loglib.getloggerWithFile('yahoo_live_data','livedataimport.txt')
 
 
 def parseStr(s):
@@ -68,7 +68,7 @@ def saveQuote(symbols):
         df=pandas.DataFrame(list_data)
         df=df.fillna(0)
         
-        dbdao.save_dataframe(df,'symbol_live_yahoo')
+        dbdao.save_dataframe(df,'yahoo_live_symbol')
         
 #     except Exception, e:
 #         
@@ -79,16 +79,46 @@ def saveQuote(symbols):
         
 def getdataforall_list( list_symbols):      
         
-        
+    try:   
         for i in range(0, len(list_symbols), 40):
             chunk = list_symbols[i:i + 40]    
             logger.info( chunk)    
             saveQuote(chunk)
+    except Exception,ex:
+        logger.error(ex)
+                
         
             
 
-dbdao.execute_query(["delete from symbol_live_yahoo"])           
+dbdao.execute_query(["delete from yahoo_live_symbol"])           
 list_symbol=dbdao.get_symbols_list()
 getdataforall_list(list_symbol) 
+update_sql=""" update live_symbol t1,yahoo_live_symbol t2
+set 
+t1.52weekhigh=t2.52weekhigh,
+t1.52weeklow=t2.52weeklow,
+t1.PE=t2.PE,
+t1.avg_daily_volume=t2.avg_daily_volume,
+t1.book_value=t2.book_value,
+t1.change_pct=t2.change_pct,
+
+t1.dividend=t2.dividend,
+t1.eps=t2.eps,
+t1.earning_per_share=t2.earning_per_share,
+t1.ex_dividend_date=t2.ex_dividend_date,
+t1.float_shares=t2.float_shares,
+t1.last=t2.last,
+t1.market_cap=t2.market_cap,
+t1.peg_ratio=t2.peg_ratio,
+t1.prev_close=t2.prev_close,
+t1.price_change=t2.price_change,
+t1.revenue=t2.revenue,
+t1.short_ratio=t2.short_ratio,
+
+t1.volume=t2.volume,
+t1.yield=t2.yield
+where t1.symbol=t2.symbol"""
+dbdao.execute_query([update_sql])
+
 #TODO update query
-dbdao.execute_query(["delete from live_symbol","insert into live_symbol select * from symbol_live_yahoo;"])
+#dbdao.execute_query(["delete from live_symbol","insert into live_symbol select * from symbol_live_yahoo;"])
