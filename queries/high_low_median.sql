@@ -32,9 +32,7 @@ set rsi_text=ctratingtext
 
 where df_technical.rsi_value=ctratingvalues.ctrating;
 
--- std50days
 
 
-update df_technical
 
-set std50days =(close-sma50)/(close*stddev);
+

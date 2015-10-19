@@ -15,6 +15,7 @@ import csv
 from util import constants
 import os
 from bl import technical_manager
+import traceback
 
 
 logger = loglib.getlogger('technicals')
@@ -27,6 +28,7 @@ def calculate_technicals(start,end):
     
     list_symbol=dbdao.get_symbols_list_limit(start,end)
     
+    #list_symbol=['A']
     hist_dates= dbdao.get_historical_dates()
     
     
@@ -36,9 +38,10 @@ def calculate_technicals(start,end):
     
     df_mkt=mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date_time, end_date_time)
     
-    print df_mkt
+    
     
     if(start=='0'):        
+        
         dbdao.execute_query(["delete from df_technical","delete from df_history"])
     df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
     
@@ -60,11 +63,13 @@ def calculate_technicals(start,end):
             logger.info("Got Technicals for symbol=%s ",symbol)
         except Exception ,ex:
             logger.error(ex)
+            logger.error( traceback.format_exc())
     
     
     
     result = pd.concat(frames)  
-    
+   
+   
     dbdao.save_dataframe(result,"df_technical");
     sql_max_min_median_5days = open('queries/high_low_median.sql', 'r').read()
     sql_relative = open('queries/relative_strength.sql', 'r').read()  

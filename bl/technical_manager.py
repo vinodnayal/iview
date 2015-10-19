@@ -45,7 +45,7 @@ def calculate_beta(df,df_mkt,symbol):
     variance = returns.var() 
     covariance = returns.cov()
     beta = covariance.loc[symbol, constants.MKT_SYMBOL] / variance.loc[constants.MKT_SYMBOL]
-    print beta
+    
     return {"beta":beta}
 
 def calculate_prices_at_dates(df,hist_dates):
@@ -72,7 +72,26 @@ def calc_res(latest_row):
     return pd.Series({'r1': r1, 'r2': r2,'r3':r3,'s1': s1, 's2': s2,'s3':s3})
     
     
+def calc_signs(latest_row):
+    close = latest_row['close']
+    sma20 = latest_row['sma20']
+    sma50 = latest_row['sma50']
+    sma200 = latest_row['sma200']
+    sma_20day_sign=-1
+    sma_50day_sign=-1
+    sma_200day_sign=-1
+    if (close>sma20 ):
+         sma_20day_sign=1
+    if (close>sma50 ):
+         sma_50day_sign=1
+    if (close> sma200):
+         sma_200day_sign=1
     
+    data=pd.Series({'sma_20day_sign': sma_20day_sign, 'sma_50day_sign': sma_50day_sign,'sma_200day_sign':sma_200day_sign})
+    #data=pd.Series(sma_20day_sign)     
+    
+   
+    return data
 
 
     
@@ -97,7 +116,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     sma3 = abstract.SMA(df_symbol_close, timeperiod=3).round(2)
     
     sma5 = abstract.SMA(df_symbol_close, timeperiod=5).round(2)
-    #print sma20,sma50
+    
     sma9 = abstract.SMA(df_symbol_close, timeperiod=9).round(2)
     
     sma13 = abstract.SMA(df_symbol_close, timeperiod=13).round(2)
@@ -140,17 +159,30 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['sma150']=sma150
     
     df_merged['stdabove']=df_merged.apply(calculate_stdabove,axis=1)
+    df_merged['date']=df_merged.index
     
-    
-    df_merged[['r1','r2','r3','s1','s2','s3']]=df_symbol.apply(calc_res,axis=1)
- 
+    df_res=df_symbol.apply(calc_res,axis=1)
+    df_merged=pd.concat([df_merged,df_res],axis=1)
     df_rating=rating_manager.calc_rating_history(df_merged, days_back, symbol)
     
     df_merged['rating']=df_rating['rating']
+    
+    df_merged=df_merged.replace([np.inf, -np.inf], np.nan)
+    
     df_merged=df_merged.dropna()
+    print df_merged
+   
+    if(df_merged is None or df_merged.symbol.count()==0):
+        return
     
     logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
+    
+    
+    df_merged.to_csv(symbol+".csv")
+    df_merged.set_index('date',inplace=True)
     dbdao.save_dataframe(df_merged, "df_history")
+        
+  
     
     #latest data calculations
     return_data={}
@@ -163,12 +195,18 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     monthly_date = hist_dates['Monthly']
     weekly_date = hist_dates['Weekly']
     
-    df_latest=df_merged.tail(1)   
+    df_latest=df_merged.tail(1) 
     
+    df_latest_sign=df_latest.apply(calc_signs,axis=1)
+    
+    df_latest=pd.concat([df_latest,df_latest_sign],axis=1)
+    
+    #df_latest[['sma_20day_sign']]=df_latest.apply(calc_signs,axis=1)
     df_latest['volatility_monthly']= price_manager.get_specific_date_value(df_merged,monthly_date,'volatility')
     df_latest['volatility_weekly']= price_manager.get_specific_date_value(df_merged,weekly_date,'volatility')
-    
-     
+    df_latest['std50days']=df_latest['stdabove']
+    df_latest['date']=df_latest.index
+    df_latest.set_index('date',inplace=True)
     latest_row=df_merged.tail(1).iloc[0]
     return_data.update(trend_manager.trend_calculation(latest_row))    
     
