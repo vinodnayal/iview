@@ -32,7 +32,7 @@ def calculate_technicals(start,end):
     
    
     
-    days_behind=1
+    days_behind=10
     
     df_mkt=mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date_time, end_date_time)
     

@@ -1,11 +1,11 @@
 
-from util import  constants
+from util import  constants, loglib
 import talib
 from talib import MA_Type
 import numpy as np
 from talib import abstract
 import math
-import matplotlib.pyplot as plt
+
 from dao import dbdao
 import pandas as pd
 from bl import price_manager, rating_manager, rsi_manager
@@ -13,7 +13,7 @@ from bl import trend_manager
 
 
 
-
+logger = loglib.getlogger('technicals_manager')
 
 def calculate_stdabove(latest_row):   
     price=latest_row['close']
@@ -149,7 +149,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['rating']=df_rating['rating']
     df_merged=df_merged.dropna()
     
-    
+    logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
     dbdao.save_dataframe(df_merged, "df_history")
     
     #latest data calculations

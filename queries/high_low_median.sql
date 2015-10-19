@@ -1,4 +1,4 @@
-UPDATE technicals_symbol t,
+UPDATE df_technical t,
 
 (
 SELECT symbol,
@@ -27,14 +27,14 @@ WHERE t.symbol=temp.symbol;
 
 
 -- rsi text update
-update technicals_symbol,ctratingvalues
+update df_technical,ctratingvalues
 set rsi_text=ctratingtext
 
-where technicals_symbol.rsi_value=ctratingvalues.ctrating
+where df_technical.rsi_value=ctratingvalues.ctrating;
 
 -- std50days
 
 
-update technicals_symbol
+update df_technical
 
 set std50days =(close-sma50)/(close*stddev);
