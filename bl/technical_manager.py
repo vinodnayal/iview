@@ -103,8 +103,10 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_symbol_close = df_symbol.drop(list_drop_cloumns,1)
     df_mkt_close = df_mkt.drop(list_drop_cloumns,1)  
     mom=abstract.MOM(df_symbol_close, timeperiod=5)    
-    macd=abstract.MACD(df_symbol_close)
-    df_merged=macd.apply(np.round)
+    df_merged=abstract.MACD(df_symbol_close,fastperiod=12,slowperiod=26,signalperiod=9)
+   
+    #df_merged=macd.apply(np.round)
+    
     df_std= abstract.STDDEV(df_symbol_close.pct_change(),timeperiod=100)
     df_merged['stddev']=df_std
     df_merged['volatility']=df_std*100*math.sqrt(252)
@@ -159,6 +161,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['sma150']=sma150
     
     df_merged['stdabove']=df_merged.apply(calculate_stdabove,axis=1)
+    
     df_merged['date']=df_merged.index
     
     df_res=df_symbol.apply(calc_res,axis=1)
@@ -178,11 +181,11 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
     
     
-    df_merged.to_csv(symbol+".csv")
+   
     df_merged.set_index('date',inplace=True)
     dbdao.save_dataframe(df_merged, "df_history")
         
-  
+    df_merged['stdabove_prev']=df_merged['stdabove'].shift(1)
     
     #latest data calculations
     return_data={}

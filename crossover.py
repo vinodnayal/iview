@@ -40,7 +40,7 @@ crossover_manager.give_negative_co_dates(df_merged,'sma25','sma20')
 
 
 
-macd = abstract.MACD(df,fastperiod=8,slowperiod=17,signalperiod=9)
+macd = abstract.MACD(df,fastperiod=12,slowperiod=26,signalperiod=9)
 
 crossover_manager.bullish_co(macd, 'macdhist')
 crossover_manager.bearish_co(macd, 'macdhist')
