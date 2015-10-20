@@ -1,0 +1,4 @@
+
+insert into iviewmarkets.technical_symbol_history
+SELECT * FROM iviewmarkets.df_history
+where date > (select ifnull(max(date),'2000-01-01') from technical_symbol_history)

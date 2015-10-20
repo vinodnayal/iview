@@ -1,0 +1,2 @@
+insert into technicals_symbol
+select * from df_technical;
