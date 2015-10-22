@@ -41,7 +41,15 @@ def bearish_below(df,column1):
     crossing_dates = df.loc[crossing]
     print(crossing_dates)
     
-        
+
+def macd_crossovers(df):  
+    df_bull_signal= bullish_co(df, 'macdhist',1)
+    
+    df_bear_signal=bearish_co(df, 'macdhist',2)
+    df_bull_center= bullish_co(df, 'macd',3)
+    df_bear_center=bearish_co(df, 'macd',4)
+    df_merged=pd.concat([df_bull_signal,df_bear_signal,df_bull_center,df_bear_center],axis=0)  
+    return df_merged 
         
 def bullish_co(df,column1,typeid):
 

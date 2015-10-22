@@ -28,13 +28,13 @@ def calculate_technicals(start,end):
     
     list_symbol=dbdao.get_symbols_list_limit(start,end)
     
-    #list_symbol=['A']
+    list_symbol=['MSFT']
     hist_dates= dbdao.get_historical_dates()
     
     
    
     
-    days_behind=10
+    days_behind=100
     
     df_mkt=mongodao.getsymbol_data(constants.MKT_SYMBOL, start_date_time, end_date_time)
     
@@ -42,7 +42,7 @@ def calculate_technicals(start,end):
     
     if(start=='0'):        
         
-        dbdao.execute_query(["delete from df_technical","delete from df_history"])
+        dbdao.execute_query(["truncate df_technical","truncate df_history","truncate df_alerts"])
     df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
     
     frames=[df_technicals]

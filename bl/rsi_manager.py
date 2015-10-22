@@ -39,12 +39,6 @@ def obos_alerts(df):
     
     
     df['rsi_value'] = df['rsi'].apply(calculate_rsi_values )
-   
-    
-    
-   
-     
-   
     df_aos = df.loc[df['rsi_value'] ==constants.RSI_ApproachingOversold]
   
     df_aos['sign']=1

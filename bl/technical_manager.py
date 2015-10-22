@@ -8,7 +8,7 @@ import math
 
 from dao import dbdao
 import pandas as pd
-from bl import price_manager, rating_manager, rsi_manager
+from bl import price_manager, rating_manager, rsi_manager, crossover_manager
 from bl import trend_manager
 
 
@@ -173,18 +173,28 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged=df_merged.replace([np.inf, -np.inf], np.nan)
     
     df_merged=df_merged.dropna()
-    print df_merged
+    print "********************************************************************************"
+    print "********************************************************************************"
+    print "********************************************************************************"
+    #print df_merged
    
     if(df_merged is None or df_merged.symbol.count()==0):
         return
     
-    logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
-    
-    
+#     logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
+#     
+#     dbdao.save_dataframe(df_merged, "df_history")
    
     df_merged.set_index('date',inplace=True)
-    dbdao.save_dataframe(df_merged, "df_history")
-        
+    df_macdco=crossover_manager.macd_crossovers(df_merged)
+    
+    df_alerts= df_macdco[['symbol','sign','typeid']]
+    dbdao.save_dataframe(df_alerts, "df_alerts")
+    df_rsi=rsi_manager.obos_alerts(df_merged)
+    df_alerts= df_rsi[['symbol','sign','typeid']]
+    
+    dbdao.save_dataframe(df_alerts, "df_alerts")
+    exit()
     df_merged['stdabove_prev']=df_merged['stdabove'].shift(1)
     
     #latest data calculations

@@ -20,7 +20,9 @@ start_date_time = end_date_time - relativedelta(days=constants.DAYS_FOR_TECHNICA
 symbol="MSFT"
 df=mongodao.getsymbol_data(symbol, start_date_time, end_date_time)    
 list_drop_cloumns = [ 'open', 'high','low']
-
+df=df[['close']]
+print df
+exit()
 df = df.drop(list_drop_cloumns,1)
 df['rsi']=abstract.RSI(df).round(2)
 
@@ -48,37 +50,8 @@ dbdao.save_dataframe(df_rsi, "df_alerts")
 
 macd = abstract.MACD(df,fastperiod=12,slowperiod=26,signalperiod=9)
 
-df_bull_signal= crossover_manager.bullish_co(macd, 'macdhist',1)
-df_bull_signal['symbol']=symbol
-
-df_bear_signal=crossover_manager.bearish_co(macd, 'macdhist',2)
-df_bear_signal['symbol']=symbol
 
 
-
-
-
-
-df_bull_center= crossover_manager.bullish_co(macd, 'macd',3)
-df_bull_center['symbol']=symbol
-
-
-df_bear_center=crossover_manager.bearish_co(macd, 'macd',4)
-df_bear_center['symbol']=symbol
-
-
-list_drop_cloumns = [ 'macd', 'macdsignal','macdhist']
-# df_macdcoll=[df_bull_signal,df_bear_signal,df_bull_center,df_bear_center]
-# df_macdcoll_sel_columns=[]
-# for df in df_macdcoll:
-#     df = df.drop(list_drop_cloumns,1)
-#     df_macdcoll_sel_columns.append(df)
-    
-
-df_merged=pd.concat([df_bull_signal,df_bear_signal,df_bull_center,df_bear_center],axis=0)
-df_merged=df_merged.drop(list_drop_cloumns,1)
-
-dbdao.save_dataframe(df_merged, "df_alerts")
 
 
 
