@@ -43,22 +43,27 @@ def bearish_below(df,column1):
     
         
         
-def bullish_co(df,column1):
+def bullish_co(df,column1,typeid):
 
     previous = df[column1].shift(1)
    
     crossing = ((df[column1] >=0) & (previous <0))
+     
                 
     crossing_dates = df.loc[crossing]
-    print(crossing_dates)
+    crossing_dates['sign']=1
+    crossing_dates['typeid']=typeid
+    return crossing_dates
     
 
-def bearish_co(df,column1):
+def bearish_co(df,column1,typeid):
 
     previous = df[column1].shift(1)
    
     crossing =  ((df[column1]<= 0) & (previous >0))
     crossing_dates = df.loc[crossing]
-    print(crossing_dates)
+    crossing_dates['sign']=-1
+    crossing_dates['typeid']=typeid
+    return crossing_dates
     
     
