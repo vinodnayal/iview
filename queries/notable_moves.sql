@@ -230,6 +230,51 @@ order by relative_strength desc
 limit 10;
 
 
+
+-- Positive Key Reversal
+
+insert into temp_notable (symbol,typeid,per_change) 
+SELECT t1.symbol,24,100*(t1.close-t2.close)/t1.close FROM 
+
+(select * from 
+history_spysymbol  WHERE date = (SELECT DATE FROM historicaldates WHERE DateType='current'))t1
+join
+(select * from 
+history_spysymbol  WHERE date = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay'))t2
+
+on t1.symbol=t2.symbol
+
+ and t1.open < t2.low
+ and t1.close >t2.close
+ and t1.close > t2.high;
+
+
+
+-- Negative Key Reversal
+
+insert into temp_notable (symbol,typeid,per_change) 
+SELECT t1.symbol,25,100*(t1.close-t2.close)/t1.close  FROM 
+
+(select * from 
+history_spysymbol  WHERE date = (SELECT DATE FROM historicaldates WHERE DateType='current'))t1
+
+join
+
+(select * from 
+history_spysymbol  WHERE date = (SELECT DATE FROM historicaldates WHERE DateType='PreviousDay'))t2
+
+on t1.symbol=t2.symbol
+
+ and t1.open > t2.low
+ and t1.close < t2.close
+ and t1.close < t2.high;
+   
+   
+ 
+ 
+ 
+ 
+
 delete from notable_moves_symbol;
 
 
