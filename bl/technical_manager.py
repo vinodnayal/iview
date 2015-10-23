@@ -21,7 +21,7 @@ def calculate_stdabove(latest_row):
     volatility=latest_row['volatility']
     std_above=0
     if(volatility!=0):    
-        std_above= (100*(price-sma50)/price)/ volatility
+        std_above= ((price-sma50))/ volatility
     return std_above
 
 
