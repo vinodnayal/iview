@@ -181,19 +181,28 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     if(df_merged is None or df_merged.symbol.count()==0):
         return
     
-#     logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
-#     
-#     dbdao.save_dataframe(df_merged, "df_history")
+    logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
+    df_merged.set_index('date',inplace=True)  
+    dbdao.save_dataframe(df_merged, "df_history")
    
-    df_merged.set_index('date',inplace=True)
-    df_macdco=crossover_manager.macd_crossovers(df_merged)
     
-    df_alerts= df_macdco[['symbol','sign','typeid']]
-    dbdao.save_dataframe(df_alerts, "df_alerts")
-    df_rsi=rsi_manager.obos_alerts(df_merged)
-    df_alerts= df_rsi[['symbol','sign','typeid']]
     
-    dbdao.save_dataframe(df_alerts, "df_alerts")
+    crossover_manager.give_positive_co_dates(df_merged,'close','sma50','Stock Breaks above 50 days SMA')
+    crossover_manager.give_positive_co_dates(df_merged,'close','sma100','Stock Breaks above 100 days SMA')
+    crossover_manager.give_positive_co_dates(df_merged,'close','sma150','Stock Breaks above 150 days SMA')
+    crossover_manager.give_positive_co_dates(df_merged,'close','sma200','Stock Breaks above 200 days SMA')
+    
+    crossover_manager.give_positive_co_dates(df_merged,'sma50','sma200','50 days SMA breaks above 200 days SMA')
+    crossover_manager.give_negative_co_dates(df_merged,'sma50','sma200','50 days SMA breaks below 200 days SMA')
+    
+    crossover_manager.give_negative_co_dates(df_merged,'close','sma50','Stock Breaks below 50 days SMA')
+    crossover_manager.give_negative_co_dates(df_merged,'close','sma100','Stock Breaks below 100 days SMA')
+    crossover_manager.give_negative_co_dates(df_merged,'close','sma150','Stock Breaks below 150 days SMA')
+    crossover_manager.give_negative_co_dates(df_merged,'close','sma200','Stock Breaks below 200 days SMA')
+    
+    crossover_manager.macd_crossovers(df_merged)
+    crossover_manager.obos_alerts(df_merged)
+    
     exit()
     df_merged['stdabove_prev']=df_merged['stdabove'].shift(1)
     
