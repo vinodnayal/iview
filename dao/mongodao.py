@@ -6,6 +6,20 @@ import pandas as pd
 
 def getsymbol_data( symbol, start_date, end_date):
     
+    df= getSymbolData(symbol, start_date, end_date)
+    list_drop_cloumns = [ '_id', 'actualclose','symbol']
+    df = df.drop(list_drop_cloumns, 1)
+    return df
+  
+def getSymbolDataWithSymbol( symbol, start_date, end_date):
+    
+    df= getSymbolData(symbol, start_date, end_date)
+    list_drop_cloumns = [ '_id', 'actualclose']
+    df = df.drop(list_drop_cloumns, 1)
+    return df  
+
+def getSymbolData( symbol, start_date, end_date):
+    
         # connection to server
         con_mongo = pymongo.MongoClient(cfg.mongodb_host, port=cfg.mongodb_port)
         #database is chartlab
@@ -21,8 +35,7 @@ def getsymbol_data( symbol, start_date, end_date):
         if(not prices_df.empty):
             
         
-            list_drop_cloumns = [ '_id', 'actualclose','volume','symbol']
-            prices_df = prices_df.drop(list_drop_cloumns, 1)
+            
             
             
             con_mongo.close()
@@ -42,20 +55,3 @@ def remove_symbol(symbol,coll_name):
         db_chartlab.symbolshistorical.remove({"symbol":symbol})
         con_mongo.close()
         
-def getsymbol_data_temp(symbol, start_date_time, end_date_time):
-    
-    symbols=[]
-    dbcon = MySQLdb.connect(
-                            host=cfg.mysqldb_host, user=cfg.mysqldb_user, passwd=cfg.mysqldb_passwd,
-                             db=cfg.mysqldb_db)
-      
-    sql = """
-        select date,close,open,low,high from history_symbol where symbol ='%s'
-        """%symbol
-        
-    df=pd.read_sql(sql, con=dbcon)    
-    df=df.sort("date")
-    df.set_index('date',inplace=True)
-    
-    dbcon.close()
-    return df
