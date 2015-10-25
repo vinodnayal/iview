@@ -17,7 +17,18 @@ Relative_strength=15
 Positive_Key_Reversal=16
 Negative_Key_Reversal=17
 
-Crossed_above_SMA=18
+Crossed_above_SMA_50=18
+Crossed_above_SMA_100=19
+Crossed_above_SMA_150=20
+Crossed_above_SMA_200=21
+Crossed_above_SMA_50_200=22
+Crossed_below_SMA_50_200=23
+Crossed_below_SMA_50=25
+Crossed_below_SMA_100=26
+Crossed_below_SMA_150=27
+Crossed_below_SMA_200=28
 
-
-Crossed_below_SMA=19
+MACD_ABOVE_SIGNAL=30
+MACD_ABOVE_CENTER=31
+MACD_BELOW_SIGNAL=32
+MACD_BELOW_CENTER=33

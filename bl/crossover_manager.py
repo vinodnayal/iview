@@ -5,18 +5,18 @@ from util import  constants, alert_constants
 
 
 def smacrossovers(df_merged):
-    give_positive_co_dates(df_merged,'close','sma50',alert_constants.Crossed_above_SMA, 'Stock Breaks above 50 days SMA')
-    give_positive_co_dates(df_merged,'close','sma100',alert_constants.Crossed_above_SMA,'Stock Breaks above 100 days SMA')
-    give_positive_co_dates(df_merged,'close','sma150',alert_constants.Crossed_above_SMA,'Stock Breaks above 150 days SMA')
-    give_positive_co_dates(df_merged,'close','sma200',alert_constants.Crossed_above_SMA,'Stock Breaks above 200 days SMA')
+    give_positive_co_dates(df_merged,'close','sma50',alert_constants.Crossed_above_SMA_50, 'Stock Breaks above 50 days SMA')
+    give_positive_co_dates(df_merged,'close','sma100',alert_constants.Crossed_above_SMA_100,'Stock Breaks above 100 days SMA')
+    give_positive_co_dates(df_merged,'close','sma150',alert_constants.Crossed_above_SMA_150,'Stock Breaks above 150 days SMA')
+    give_positive_co_dates(df_merged,'close','sma200',alert_constants.Crossed_above_SMA_200,'Stock Breaks above 200 days SMA')
     
-    give_positive_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_above_SMA,'50 days SMA breaks above 200 days SMA')
-    give_negative_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_below_SMA,'50 days SMA breaks below 200 days SMA')
+    give_positive_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_above_SMA_50_200,'50 days SMA breaks above 200 days SMA')
+    give_negative_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_below_SMA_50_200,'50 days SMA breaks below 200 days SMA')
     
-    give_negative_co_dates(df_merged,'close','sma50',alert_constants.Crossed_below_SMA,'Stock Breaks below 50 days SMA')
-    give_negative_co_dates(df_merged,'close','sma100',alert_constants.Crossed_below_SMA,'Stock Breaks below 100 days SMA')
-    give_negative_co_dates(df_merged,'close','sma150',alert_constants.Crossed_below_SMA,'Stock Breaks below 150 days SMA')
-    give_negative_co_dates(df_merged,'close','sma200',alert_constants.Crossed_below_SMA,'Stock Breaks below 200 days SMA')
+    give_negative_co_dates(df_merged,'close','sma50',alert_constants.Crossed_below_SMA_50,'Stock Breaks below 50 days SMA')
+    give_negative_co_dates(df_merged,'close','sma100',alert_constants.Crossed_below_SMA_100,'Stock Breaks below 100 days SMA')
+    give_negative_co_dates(df_merged,'close','sma150',alert_constants.Crossed_below_SMA_150,'Stock Breaks below 150 days SMA')
+    give_negative_co_dates(df_merged,'close','sma200',alert_constants.Crossed_below_SMA_200,'Stock Breaks below 200 days SMA')
     
 def give_positive_co_dates(df,column1,column2,typeid,text):
 
@@ -86,10 +86,10 @@ def obos_alerts(df):
     dbdao.save_dataframe(df_alerts, "df_alerts")
     
 def macd_crossovers(df):  
-    df_bull_signal= bullish_co(df, 'macdhist',1,'MACD crosses above signal line')    
-    df_bear_signal=bearish_co(df, 'macdhist',2,'MACD crosses below signal line')
-    df_bull_center= bullish_co(df, 'macd',3,'MACD crosses above center line')
-    df_bear_center=bearish_co(df, 'macd',4,'MACD crosses below signal line')
+    df_bull_signal= bullish_co(df, 'macdhist',alert_constants.MACD_ABOVE_SIGNAL,'MACD crosses above signal line')    
+    df_bear_signal=bearish_co(df, 'macdhist',alert_constants.MACD_BELOW_SIGNAL,'MACD crosses below signal line')
+    df_bull_center= bullish_co(df, 'macd',alert_constants.MACD_ABOVE_CENTER,'MACD crosses above center line')
+    df_bear_center=bearish_co(df, 'macd',alert_constants.MACD_BELOW_CENTER,'MACD crosses below center line')
     df_merged=pd.concat([df_bull_signal,df_bear_signal,df_bull_center,df_bear_center],axis=0)  
     df_alerts= df_merged[['symbol','sign','typeid','text']]
     dbdao.save_dataframe(df_alerts, "df_alerts") 

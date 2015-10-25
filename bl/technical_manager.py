@@ -49,6 +49,15 @@ def calculate_beta(df,df_mkt,symbol):
     
     return {"beta":beta}
 
+def relative_strength(df,df_mkt,symbol):
+   
+    df = df[['close']]#.rename(columns={constants.CLOSE: "symbol"})
+    df_mkt = df_mkt[['close']]#.rename(columns={constants.CLOSE: "mkt"})
+    df['Relative_strength']=100*(df['close']-df['close'].shift(120))/(df['close'].shift(120))
+    df_mkt['Relative_strength']=100*(df_mkt['close']-df_mkt['close'].shift(120))/(df_mkt['close'].shift(120))
+    df_merged = df[['Relative_strength']]-df_mkt[['Relative_strength']]
+    return df_merged
+
 def calculate_prices_at_dates(df,hist_dates):
     
     dates_prices={}
@@ -165,7 +174,8 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['sma90']=sma90
     df_merged['sma36']=sma36
     df_merged['sma150']=sma150
-    
+    df_merged['Relative_strength']=relative_strength(df_symbol_close, df_mkt_close, symbol)['Relative_strength']
+  
     df_merged['stdabove']=df_merged.apply(calculate_stdabove,axis=1)
     
     df_merged['date']=df_merged.index
@@ -192,7 +202,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     
     
     
-    alert_manager.relative_strength(df_symbol_close, df_mkt_close, symbol)
+    alert_manager.relative_strength(df_merged)
     
     
     alert_manager.fullGapPositive(df_merged)
@@ -202,6 +212,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
         
     alert_manager.keyReversalPositive(df_merged)
     alert_manager.keyReversalNegative(df_merged)
+    
         
     alert_manager.volumePositive(df_merged)
     alert_manager.volumeNegative(df_merged)

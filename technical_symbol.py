@@ -76,13 +76,13 @@ def calculate_technicals(start,end):
     
     dbdao.save_dataframe(df_technical,"df_technical");
     sql_max_min_median_5days = open('queries/high_low_median.sql', 'r').read()
-    sql_relative = open('queries/relative_strength.sql', 'r').read()  
+   
     sql_update_technical_history = open('queries/update_technical_history.txt', 'r').read()  
     logger.info("Executing Queries for updating technicals")
-    delete_technicals_latest="delete from technicals_symbol"
-    update_technical_latest = open('queries/update_technical_latest.txt', 'r').read()
+    #delete_technicals_latest="delete from technicals_symbol"
+    #update_technical_latest = open('queries/update_technical_latest.txt', 'r').read()
     
-    dbdao.execute_query([sql_max_min_median_5days,sql_relative,sql_update_technical_history,delete_technicals_latest,update_technical_latest])
+    #dbdao.execute_query([sql_max_min_median_5days,sql_relative,sql_update_technical_history,delete_technicals_latest,update_technical_latest])
     logger.info("Queries Completed !")
     
 
