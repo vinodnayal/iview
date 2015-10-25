@@ -68,12 +68,15 @@ def volumeNegative(df):
     
  
 def relative_strength(df,df_mkt,symbol):
+    print df
+    print df_mkt
     df = df[['close']]#.rename(columns={constants.CLOSE: "symbol"})
     df_mkt = df_mkt[['close']]#.rename(columns={constants.CLOSE: "mkt"})
     df['Relative_strength']=100*(df['close']-df['close'].shift(120))/(df['close'].shift(120))
     df_mkt['Relative_strength']=100*(df_mkt['close']-df_mkt['close'].shift(120))/(df_mkt['close'].shift(120))
     df_merged = df[['Relative_strength']]-df_mkt[['Relative_strength']]
     df_merged=df_merged.dropna()
+    print df_merged
     df_alert= crossover_manager.bullish_co(df_merged,'Relative_strength',alert_constants.Relative_strength,"")
     df_alert['symbol']=symbol
     savealerts(df_alert)

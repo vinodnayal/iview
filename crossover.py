@@ -30,18 +30,14 @@ dbdao.execute_query(["truncate df_alerts"])
 
 #six_month_return =df[['close']].apply(lambda x: x- x.shift(120))
 
-
 alert_manager.fullGapPositive(df)
 alert_manager.fullGapNegative(df)
 alert_manager.partialGapPositive(df)
 alert_manager.partialGapNegative(df)
-
 alert_manager.keyReversalPositive(df)
 alert_manager.keyReversalNegative(df)
-
 alert_manager.volumePositive(df)
 alert_manager.volumeNegative(df)
-
 alert_manager.relative_strength(df, df_spy, symbol)
 
 

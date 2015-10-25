@@ -1,31 +1,43 @@
 import pandas as pd
 from dao import dbdao
 from bl import rsi_manager
-from util import  constants
+from util import  constants, alert_constants
 
 
-
+def smacrossovers(df_merged):
+    give_positive_co_dates(df_merged,'close','sma50',alert_constants.Crossed_above_SMA, 'Stock Breaks above 50 days SMA')
+    give_positive_co_dates(df_merged,'close','sma100',alert_constants.Crossed_above_SMA,'Stock Breaks above 100 days SMA')
+    give_positive_co_dates(df_merged,'close','sma150',alert_constants.Crossed_above_SMA,'Stock Breaks above 150 days SMA')
+    give_positive_co_dates(df_merged,'close','sma200',alert_constants.Crossed_above_SMA,'Stock Breaks above 200 days SMA')
     
-def give_positive_co_dates(df,column1,column2,text):
+    give_positive_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_above_SMA,'50 days SMA breaks above 200 days SMA')
+    give_negative_co_dates(df_merged,'sma50','sma200',alert_constants.Crossed_below_SMA,'50 days SMA breaks below 200 days SMA')
+    
+    give_negative_co_dates(df_merged,'close','sma50',alert_constants.Crossed_below_SMA,'Stock Breaks below 50 days SMA')
+    give_negative_co_dates(df_merged,'close','sma100',alert_constants.Crossed_below_SMA,'Stock Breaks below 100 days SMA')
+    give_negative_co_dates(df_merged,'close','sma150',alert_constants.Crossed_below_SMA,'Stock Breaks below 150 days SMA')
+    give_negative_co_dates(df_merged,'close','sma200',alert_constants.Crossed_below_SMA,'Stock Breaks below 200 days SMA')
+    
+def give_positive_co_dates(df,column1,column2,typeid,text):
 
     previous_col1 = df[column1].shift(1)
     previous_col2 = df[column2].shift(1)
     crossing = ((df[column1] >= df[column2]) & (previous_col1 <= previous_col2))
     crossing_dates = df.loc[crossing]
     crossing_dates['sign']=1
-    crossing_dates['typeid']=9
+    crossing_dates['typeid']=typeid
     crossing_dates['text']=text
     df_alerts= crossing_dates[['sign','typeid','symbol','text']]
     dbdao.save_dataframe(df_alerts, "df_alerts")
     
-def give_negative_co_dates(df,column1,column2,text):
+def give_negative_co_dates(df,column1,column2,typeid,text):
 
     previous_col1 = df[column1].shift(1)
     previous_col2 = df[column2].shift(1)
     crossing = ((df[column1] <= df[column2]) & (previous_col1 >= previous_col2))            
     crossing_dates = df.loc[crossing]
     crossing_dates['sign']=-1
-    crossing_dates['typeid']=10
+    crossing_dates['typeid']=typeid
     crossing_dates['text']=text
     df_alerts= crossing_dates[['sign','typeid','symbol','text']]
     dbdao.save_dataframe(df_alerts, "df_alerts")
@@ -46,25 +58,25 @@ def obos_alerts(df):
     df['rsi_value'] = df['rsi'].apply(rsi_manager.calculate_rsi_values )
     df_aos = df.loc[df['rsi_value'] ==constants.RSI_ApproachingOversold]
     df_aos['sign']=1
-    df_aos['typeid']=5
+    df_aos['typeid']=alert_constants.ApproachingOversold
     df_aos['text']='ApproachingOversold'
     
     
     df_os = df.loc[(df['rsi_value'] ==constants.RSI_Oversold)]
     df_os['sign']=1
-    df_os['typeid']=6
+    df_os['typeid']=alert_constants.Oversold
     df_os['text']='Oversold'
     
     
     df_aob= df.loc[(df['rsi_value'] ==constants.RSI_ApproachingOverbought)]
     df_aob['sign']=-1
-    df_aob['typeid']=7
+    df_aob['typeid']=alert_constants.ApproachingOverbought
     df_aob['text']='ApproachingOverbought'
     
     
     df_ob = df.loc[(df['rsi_value'] ==constants.RSI_Overbought)]
     df_ob['sign']=-1
-    df_ob['typeid']=8
+    df_ob['typeid']=alert_constants.Overbought
     df_ob['text']='Overbought'
     
     

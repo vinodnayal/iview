@@ -48,7 +48,7 @@ def calculate_technicals(start,end):
     frames=[df_technicals]
     for symbol in list_symbol:    
         try:
-            df_symbol=mongodao.getsymbol_data_temp(symbol, start_date_time, end_date_time)
+            df_symbol=mongodao.getsymbol_data(symbol, start_date_time, end_date_time)
             
             if df_symbol.empty:
                 continue
@@ -69,8 +69,12 @@ def calculate_technicals(start,end):
     
     result = pd.concat(frames)  
    
-   
-    dbdao.save_dataframe(result,"df_technical");
+    
+    list_drop_cloumns = [ 'open','volume','low','high','sma_volume_6month']
+    df_technical = result.drop(list_drop_cloumns, 1)
+    
+    
+    dbdao.save_dataframe(df_technical,"df_technical");
     sql_max_min_median_5days = open('queries/high_low_median.sql', 'r').read()
     sql_relative = open('queries/relative_strength.sql', 'r').read()  
     sql_update_technical_history = open('queries/update_technical_history.txt', 'r').read()  

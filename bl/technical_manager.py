@@ -8,7 +8,8 @@ import math
 
 from dao import dbdao
 import pandas as pd
-from bl import price_manager, rating_manager, rsi_manager, crossover_manager
+from bl import price_manager, rating_manager, rsi_manager, crossover_manager,\
+    alert_manager
 from bl import trend_manager
 
 
@@ -99,9 +100,10 @@ def calc_signs(latest_row):
 
 def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hist_dates,days_back): 
  
-    list_drop_cloumns = [ 'open', 'high','low']
-    df_symbol_close = df_symbol.drop(list_drop_cloumns,1)
-    df_mkt_close = df_mkt.drop(list_drop_cloumns,1)  
+    #list_drop_cloumns = [ 'open', 'high','low','volume']
+    df_symbol_close = df_symbol[['close']]
+    
+    df_mkt_close = df_mkt[['close']]
     mom=abstract.MOM(df_symbol_close, timeperiod=5)    
     df_merged=abstract.MACD(df_symbol_close,fastperiod=12,slowperiod=26,signalperiod=9)
    
@@ -112,7 +114,7 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['volatility']=df_std*100*math.sqrt(252)
     rsi=abstract.RSI(df_symbol_close).round(2)    
     sma20 = abstract.SMA(df_symbol_close, timeperiod=20).round(2)
-    sma50 = abstract.SMA(df_symbol_close, timeperiod=50).round(2)
+
     sma100 = abstract.SMA(df_symbol_close, timeperiod=100).round(2)
     sma200 = abstract.SMA(df_symbol_close, timeperiod=200).round(2)
     sma3 = abstract.SMA(df_symbol_close, timeperiod=3).round(2)
@@ -144,8 +146,12 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_merged['sma100']=sma100
     df_merged['sma200']=sma200
     df_merged['rsi']=rsi    
-    df_merged['close']=df_symbol_close
-    
+    df_merged['close']=df_symbol['close']
+    df_merged['open']=df_symbol['open']
+    df_merged['low']=df_symbol['low']
+    df_merged['high']=df_symbol['high']
+    df_merged['volume']=df_symbol['volume']
+    df_merged['sma_volume_6month']= pd.rolling_mean(df_merged['volume'], window=120).round(2)
     df_merged=df_merged.dropna()
     df_merged['symbol']=symbol
     df_merged['rsi_value'] = df_merged['rsi'].apply(rsi_manager.calculate_rsi_values )
@@ -183,27 +189,40 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     
     logger.info("Saving history for Symbol "+symbol + " length = "+ str(len(df_merged)))
     df_merged.set_index('date',inplace=True)  
-    dbdao.save_dataframe(df_merged, "df_history")
-   
     
     
-    crossover_manager.give_positive_co_dates(df_merged,'close','sma50','Stock Breaks above 50 days SMA')
-    crossover_manager.give_positive_co_dates(df_merged,'close','sma100','Stock Breaks above 100 days SMA')
-    crossover_manager.give_positive_co_dates(df_merged,'close','sma150','Stock Breaks above 150 days SMA')
-    crossover_manager.give_positive_co_dates(df_merged,'close','sma200','Stock Breaks above 200 days SMA')
     
-    crossover_manager.give_positive_co_dates(df_merged,'sma50','sma200','50 days SMA breaks above 200 days SMA')
-    crossover_manager.give_negative_co_dates(df_merged,'sma50','sma200','50 days SMA breaks below 200 days SMA')
+    alert_manager.relative_strength(df_symbol_close, df_mkt_close, symbol)
     
-    crossover_manager.give_negative_co_dates(df_merged,'close','sma50','Stock Breaks below 50 days SMA')
-    crossover_manager.give_negative_co_dates(df_merged,'close','sma100','Stock Breaks below 100 days SMA')
-    crossover_manager.give_negative_co_dates(df_merged,'close','sma150','Stock Breaks below 150 days SMA')
-    crossover_manager.give_negative_co_dates(df_merged,'close','sma200','Stock Breaks below 200 days SMA')
     
+    alert_manager.fullGapPositive(df_merged)
+    alert_manager.fullGapNegative(df_merged)
+    alert_manager.partialGapPositive(df_merged)
+    alert_manager.partialGapNegative(df_merged)
+        
+    alert_manager.keyReversalPositive(df_merged)
+    alert_manager.keyReversalNegative(df_merged)
+        
+    alert_manager.volumePositive(df_merged)
+    alert_manager.volumeNegative(df_merged)
+    
+    
+    crossover_manager.smacrossovers(df_merged)
     crossover_manager.macd_crossovers(df_merged)
     crossover_manager.obos_alerts(df_merged)
     
-    exit()
+    
+    
+    dbdao.save_dataframe(df_merged, "df_history")
+   
+    
+        
+    #alert_manager.relative_strength(df_merged, df_spy, symbol)
+
+    
+    
+    
+    
     df_merged['stdabove_prev']=df_merged['stdabove'].shift(1)
     
     #latest data calculations

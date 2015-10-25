@@ -13,9 +13,11 @@ Partial_Gap_Down=12
 Top_Performer=13
 Bottom_Performer=14
 Relative_strength=15
-Crossed_above_200SMA=16
-Crossed_below_200SMA=17
-Crossed_above_50SMA=18
-Crossed_below_50SMA=19
-Positive_Key_Reversal=20
-Negative_Key_Reversal=21
+
+Positive_Key_Reversal=16
+Negative_Key_Reversal=17
+
+Crossed_above_SMA=18
+
+
+Crossed_below_SMA=19
