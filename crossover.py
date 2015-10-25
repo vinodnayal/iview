@@ -10,58 +10,38 @@ from util import loglib, alert_constants
 
 from util import constants
 
-from bl import  crossover_manager, rsi_manager
+from bl import  crossover_manager, rsi_manager, alert_manager
 from dao import mongodao, dbdao
 
-def fullGapPositive(df):
-    diff=df['open']>df['high'].shift(1)
-    df= df[diff]
-    df['sign']=1
-    df['typeid']=alert_constants.Full_Gap_Up
-    print df
-    
-
-def fullGapNegative(df):
-    diff=df['open']<df['low'].shift(1)
-    df= df[diff]
-    df['sign']=-1
-    df['typeid']=alert_constants.Full_Gap_Down
-    print df
-
-def partialGapPositive(df):
-    diff=df['open']>df['close'].shift(1)
-    df= df[diff]
-    df['sign']=1
-    df['typeid']=alert_constants.Partial_Gap_up
-    print df
-    
-def partialGapNegative(df):
-    diff=df['open']<df['close'].shift(1)
-    df= df[diff]
-    df['sign']=-1
-    df['typeid']=alert_constants.Partial_Gap_Down
-    print df    
 
     
 end_date_time = datetime.datetime.now()  # mysqldb.get_maxdate()[0]   
 start_date_time = end_date_time - relativedelta(days=constants.DAYS_FOR_TECHNICALS)
     
+df_spy=mongodao.getSymbolDataWithSymbol("SPY", start_date_time, end_date_time)  
 
 symbol="MSFT"
-df=mongodao.getsymbol_data(symbol, start_date_time, end_date_time)  
+df=mongodao.getSymbolDataWithSymbol(symbol, start_date_time, end_date_time)  
 
 df['sma_volume_6month']= pd.rolling_mean(df['volume'], window=120).round(2)
 df=df.dropna()
-print df
-exit()
 
-fullGapPositive(df)
-fullGapNegative(df)
-partialGapPositive(df)
-partialGapNegative(df)
+dbdao.execute_query(["truncate df_alerts"])
+
+#six_month_return =df[['close']].apply(lambda x: x- x.shift(120))
 
 
+alert_manager.fullGapPositive(df)
+alert_manager.fullGapNegative(df)
+alert_manager.partialGapPositive(df)
+alert_manager.partialGapNegative(df)
 
+alert_manager.keyReversalPositive(df)
+alert_manager.keyReversalNegative(df)
 
+alert_manager.volumePositive(df)
+alert_manager.volumeNegative(df)
+
+alert_manager.relative_strength(df, df_spy, symbol)
 
 
