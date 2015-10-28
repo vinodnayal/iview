@@ -42,7 +42,7 @@ def calculate_technicals(start,end):
     
     if(start=='0'):        
         
-        dbdao.execute_query(["truncate df_technical","truncate df_history","truncate df_alerts"])
+        dbdao.execute_query(["drop table df_technical","drop table df_history","drop table  df_alerts"])
     df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
     
     frames=[df_technicals]

@@ -1,5 +1,5 @@
 
-from util import  constants, loglib
+from util import  constants, loglib, alert_constants
 import talib
 from talib import MA_Type
 import numpy as np
@@ -104,9 +104,6 @@ def calc_signs(latest_row):
     return data
 
 
-    
-
-
 def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hist_dates,days_back): 
  
     #list_drop_cloumns = [ 'open', 'high','low','volume']
@@ -183,6 +180,19 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_res=df_symbol.apply(calc_res,axis=1)
     df_merged=pd.concat([df_merged,df_res],axis=1)
     df_rating=rating_manager.calc_rating_history(df_merged, days_back, symbol)
+    df_trends=df_merged.apply(lambda row : trend_manager.trend_calculation(row),axis=1)
+
+    df_merged=pd.concat([df_merged,df_trends],axis=1)
+ 
+    crossover_manager.TrendChangePositive(df_merged,"short_trend",alert_constants.TREND_SHORT)
+    crossover_manager.TrendChangePositive(df_merged,"inter_trend",alert_constants.TREND_INTERMEDIATE)
+    crossover_manager.TrendChangePositive(df_merged,"long_trend",alert_constants.TREND_LONG)
+    
+    
+    crossover_manager.TrendChangeNegative(df_merged,"short_trend",alert_constants.TREND_SHORT)
+    crossover_manager.TrendChangeNegative(df_merged,"inter_trend",alert_constants.TREND_INTERMEDIATE)
+    crossover_manager.TrendChangeNegative(df_merged,"long_trend",alert_constants.TREND_LONG)
+
     
     df_merged['rating']=df_rating['rating']
     
@@ -259,8 +269,8 @@ def calculate_technical(df_symbol,symbol,df_mkt,start_date_time,end_date_time,hi
     df_latest['std50days']=df_latest['stdabove']
     df_latest['date']=df_latest.index
     df_latest.set_index('date',inplace=True)
-    latest_row=df_merged.tail(1).iloc[0]
-    return_data.update(trend_manager.trend_calculation(latest_row))    
+    
+        
     
     
     for key, value in return_data.iteritems():

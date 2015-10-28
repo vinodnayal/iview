@@ -4,6 +4,7 @@ from bl import rsi_manager
 from util import  constants, alert_constants
 
 
+
 def smacrossovers(df_merged):
     give_positive_co_dates(df_merged,'close','sma50',alert_constants.Crossed_above_SMA_50, 'Stock Breaks above 50 days SMA')
     give_positive_co_dates(df_merged,'close','sma100',alert_constants.Crossed_above_SMA_100,'Stock Breaks above 100 days SMA')
@@ -27,8 +28,8 @@ def give_positive_co_dates(df,column1,column2,typeid,text):
     crossing_dates['sign']=1
     crossing_dates['typeid']=typeid
     crossing_dates['text']=text
-    df_alerts= crossing_dates[['sign','typeid','symbol','text']]
-    dbdao.save_dataframe(df_alerts, "df_alerts")
+   
+    dbdao.savealerts(crossing_dates)
     
 def give_negative_co_dates(df,column1,column2,typeid,text):
 
@@ -39,8 +40,8 @@ def give_negative_co_dates(df,column1,column2,typeid,text):
     crossing_dates['sign']=-1
     crossing_dates['typeid']=typeid
     crossing_dates['text']=text
-    df_alerts= crossing_dates[['sign','typeid','symbol','text']]
-    dbdao.save_dataframe(df_alerts, "df_alerts")
+    
+    dbdao.savealerts(crossing_dates)
     
 
 def bullish_above(df,column1):
@@ -81,9 +82,9 @@ def obos_alerts(df):
     
     
     df_merged = pd.concat([df_aob,df_aos,df_os,df_ob],axis=0)
-    df_alerts= df_merged[['symbol','sign','typeid','text']]
+   
      
-    dbdao.save_dataframe(df_alerts, "df_alerts")
+    dbdao.savealerts(df_merged)
     
 def macd_crossovers(df):  
     df_bull_signal= bullish_co(df, 'macdhist',alert_constants.MACD_ABOVE_SIGNAL,'MACD crosses above signal line')    
@@ -91,8 +92,8 @@ def macd_crossovers(df):
     df_bull_center= bullish_co(df, 'macd',alert_constants.MACD_ABOVE_CENTER,'MACD crosses above center line')
     df_bear_center=bearish_co(df, 'macd',alert_constants.MACD_BELOW_CENTER,'MACD crosses below center line')
     df_merged=pd.concat([df_bull_signal,df_bear_signal,df_bull_center,df_bear_center],axis=0)  
-    df_alerts= df_merged[['symbol','sign','typeid','text']]
-    dbdao.save_dataframe(df_alerts, "df_alerts") 
+  
+    dbdao.savealerts(df_merged) 
         
 def bullish_co(df,column1,typeid,text):
     previous = df[column1].shift(1)   
@@ -103,6 +104,23 @@ def bullish_co(df,column1,typeid,text):
     crossing_dates['typeid']=typeid
     return crossing_dates
     
+def TrendChangePositive(df,column1,typeid):
+ 
+    crossing = ((df[column1] >df[column1].shift(1) ))
+    crossing_dates = df.loc[crossing]
+    crossing_dates['sign']=1
+    crossing_dates['typeid']=typeid
+    
+    df_alerts=crossing_dates.rename(columns={column1: "newvalue"})
+    dbdao.savealerts(df_alerts)
+def TrendChangeNegative(df,column1,typeid):
+ 
+    crossing = ((df[column1] <df[column1].shift(1) ))
+    crossing_dates = df.loc[crossing]
+    crossing_dates['sign']=-1
+    crossing_dates['typeid']=typeid
+    df_alerts=crossing_dates.rename(columns={column1: "newvalue"})
+    dbdao.savealerts(df_alerts)
 
 def bearish_co(df,column1,typeid,text):
     previous = df[column1].shift(1)

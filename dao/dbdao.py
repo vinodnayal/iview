@@ -13,6 +13,14 @@ from mock import inplace
 
 logger = loglib.getlogger('dbutil_new')
 
+def savealerts(df):
+    
+    if('newvalue' not in df):
+        df['newvalue']=''
+    df=df[['symbol','sign','typeid','newvalue']]
+    print df
+    save_dataframe(df, "df_alerts")
+    
 def remove_symbol( symbol):
             
             dbcon = MySQLdb.connect(
