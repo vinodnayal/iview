@@ -1,0 +1,121 @@
+
+select concat(symbol, ' pattern is a ',patternname ,' since ',startdate , ' and is up'
+,' since moving to a ','ffff' , ' since '
+) as synopsis from df_sm_trends
+
+
+***********************************************
+
+drop table df_alerts_latest;
+
+create table df_alerts_latest
+as
+select t1.* from df_alerts t1
+join
+(
+select max(date) as date,symbol,typeid from df_alerts
+group by symbol,typeid
+) t2 on t1.symbol=t2.symbol and t1.date =t2.date and t1.typeid=t2.typeid
+
+***************************************************
+truncate table df_sm_trends;
+insert into df_sm_trends 
+
+select symbol,max(ph.startdate),max(ph.enddate),max(patternname),max(typeid) from
+(
+select ph.symbol,ph.startdate,ph.enddate,ph.patternid from patternhistory  ph
+join(
+select max(startdate) as startdate, symbol from  patternhistory group by symbol) t
+on
+ph.symbol=t.symbol and t.startdate=ph.startdate and t.startdate=ph.startdate) ph
+join patterns p on 
+ph.patternId=p.patternId
+join patterntype pt on p.type=pt.typeid 
+group by symbol;
+
+********************************************
+
+select t3.*,l.last,t4.startdate,t4.patternname,t4.typeid  as patternsign from 
+(
+select distinct t2.sign as trendsign, h.close,date(t1.date) as date,t2.trendname,t1.symbol,t1.typeid,t1.newvalue from df_alerts_latest t1 
+join history_symbol h on
+t1.symbol=h.symbol and h.date=t1.date
+join trendtype t2 on t2.trendid=t1.newvalue
+where typeid=34
+) t3
+join live_symbol as l 
+on t3.symbol=l.symbol
+left join df_sm_trends t4 on t4.symbol=t3.symbol
+create table temp_vinod as 
+select distinct d.symbol,d.startdate,h.close,h.date,d.patternname,d.typeid from df_sm_trends d
+join history_symbol h on
+d.symbol=h.symbol and h.date>=d.startdate  and h.date <=date_add(d.startdate ,interval 3 DAY)
+
+and h.date >=date_add(now() ,interval 60 DAY);
+
+************************************************************
+
+
+*********************************
+select concat(l.symbol, ' pattern is a ',t.patternname ,' since ',t.startdate , ' and is ',
+case when (l.last-t.close)>0 then "up " else "down " end, round(100*(l.last-t.close)/(t.close),2)
+,' since moving to a ',t3.trendname, ' Short Term' , ' since ', date(a.date)
+) as synopsis ,
+l.symbol,l.last,t.startdate,t.close,t.patternname,t.typeid,
+100*(l.last-t.close)/(t.close) as pct_change,
+case when (l.last-t.close)>0 then "up" else "down" end as sign
+ from live_symbol as l join
+(
+select t1.* from temp_vinod t1
+join 
+(select symbol,max(date) as date from temp_vinod group by symbol ) t2
+on t1.symbol=t2.symbol and t1.date=t2.date
+) t
+on l.symbol=t.symbol
+join df_alerts_latest a on a.symbol=t.symbol and a.typeid=34
+join trendtype t3 on t3.trendid=a.newvalue
+where l.last >1;
+
+
+
+
+*****************************************
+
+select t3.*,l.last,t4.startdate,t4.patternname,t4.typeid  as patternsign from 
+(
+select distinct t2.sign as trendsign, h.close,date(t1.date) as date,t2.trendname,t1.symbol,t1.typeid,t1.newvalue from df_alerts_latest t1 
+join history_symbol h on
+t1.symbol=h.symbol and h.date=t1.date
+join trendtype t2 on t2.trendid=t1.newvalue
+where typeid=34
+) t3
+join live_symbol as l 
+on t3.symbol=l.symbol
+left join df_sm_trends t4 on t4.symbol=t3.symbol
+
+
+***************************************
+final
+
+
+select   
+ concat(l.symbol, ' pattern is a ',t4.patternname ,' since ',t4.startdate , ' and is ',
+case when (l.last-t3.close)>0 then "up " else "down " end, round(100*(l.last-t3.close)/(t3.close),2)
+,' since moving to a ',t3.trendname, ' Short Term' , ' since ', t3.trenddate
+) as synopsis ,
+
+ 
+l.last,t4.startdate as patterndate,t4.patternname,t4.typeid  as patternsign from 
+(
+select distinct t2.sign as trendsign, h.close,date(t1.date) as trenddate,t2.trendname,
+t1.symbol,t1.typeid,t1.newvalue from df_alerts_latest t1 
+join history_symbol h on
+t1.symbol=h.symbol and h.date=t1.date
+join trendtype t2 on t2.trendid=t1.newvalue
+where typeid=34
+) t3
+join live_symbol as l 
+on t3.symbol=l.symbol
+left join df_sm_trends t4 on t4.symbol=t3.symbol
+
+
