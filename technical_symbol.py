@@ -41,8 +41,8 @@ def calculate_technicals(start,end):
     
     
     if(start=='0'):        
-        
-        dbdao.execute_query(["drop table df_technical","drop table df_history","drop table  df_alerts"])
+         
+        dbdao.execute_query(["drop table df_technical","truncate table df_history","truncate table  df_alerts"])
     df_technicals = technical_manager.calculate_technical(df_mkt,constants.MKT_SYMBOL,df_mkt, start_date_time, end_date_time, hist_dates,days_behind)
     
     frames=[df_technicals]
@@ -73,16 +73,25 @@ def calculate_technicals(start,end):
     list_drop_cloumns = [ 'open','volume','low','high','sma_volume_6month']
     df_technical = result.drop(list_drop_cloumns, 1)
     
+    # add extra columns for low high median
+    df_technical['low_5day_max']=0
+    df_technical['low_5day_min']=0
+    df_technical['low_5day_median']=0
+    df_technical['high_5day_max']=0
+    df_technical['high_5day_min']=0
+    df_technical['high_5day_median']=0
+    df_technical['rsi_text']=''
+    
     
     dbdao.save_dataframe(df_technical,"df_technical");
     sql_max_min_median_5days = open('queries/high_low_median.sql', 'r').read()
    
     sql_update_technical_history = open('queries/update_technical_history.txt', 'r').read()  
     logger.info("Executing Queries for updating technicals")
-    #delete_technicals_latest="delete from technicals_symbol"
-    #update_technical_latest = open('queries/update_technical_latest.txt', 'r').read()
+    delete_technicals_latest="delete from technicals_symbol"
+    update_technical_latest = open('queries/update_technical_latest.txt', 'r').read()
     
-    #dbdao.execute_query([sql_max_min_median_5days,sql_relative,sql_update_technical_history,delete_technicals_latest,update_technical_latest])
+    dbdao.execute_query([sql_max_min_median_5days,sql_update_technical_history,delete_technicals_latest,update_technical_latest])
     logger.info("Queries Completed !")
     
 

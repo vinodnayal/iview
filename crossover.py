@@ -15,6 +15,10 @@ from dao import mongodao, dbdao
 import math
 
 
+df=pd.read_csv("data/remove_etf.txt")
+print df
+dbdao.save_dataframe(df, "df_removeetf")
+exit()
 
 
 end_date_time = datetime.datetime.now()  # mysqldb.get_maxdate()[0]   

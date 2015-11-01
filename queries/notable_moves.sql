@@ -1,10 +1,3 @@
--- new query
-
-select max(date),symbol,typeid,max(sign) from df_alerts 
-where date >='2015-10-01'
-group by symbol,typeid 
-
-
 -- new high low 
 
 INSERT INTO temp_notable (symbol,typeid,per_change)
